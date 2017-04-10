@@ -90,3 +90,8 @@ ENV/
 
 # Rope project settings
 .ropeproject
+/MovieComment2Rating/DataPreprocess/bin/Debug
+/MovieComment2Rating/DataPreprocess/obj/Debug
+/MovieComment2Rating/DataPreprocess/Properties
+/MovieComment2Rating/DataPreprocess/.vs/DataPreprocess/v14
+/MovieComment2Rating/.vs/MovieComment2Rating/v14
