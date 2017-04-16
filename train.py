@@ -9,7 +9,7 @@ from models.cnn import CNN
 
 
 # prepare raw data and embedding dict
-comments, ratings = get_data("D:\\AllComments.segmented.txt", 20000)
+comments, ratings = get_data("D:\\AllComments.segmented.txt", 50000)
 comments = remove_unknown_word(comments)
 x_train_raw, x_dev_raw, y_train_raw, y_dev_raw = split_data(comments, ratings, 0.2)
 embedding_dict = get_embedding_dict(comments)
@@ -22,13 +22,23 @@ x_dev = embed(x_dev_raw, embedding_dict, sent_length, embedding_size)
 y_train = (np.arange(5) == np.array(y_train_raw)[:, None]).astype(np.float32)
 y_dev = (np.arange(5) == np.array(y_dev_raw)[:, None]).astype(np.float32)
 
+# for english corpus
+# x, y = get_data_eng()
+# sent_length = 61
+# embedding_size = 300
+# np.random.seed(10)
+# shuffle_indices = np.random.permutation(np.arange(len(y)))
+# x_shuffled = x[shuffle_indices]
+# y_shuffled = y[shuffle_indices]
+# x_train, x_dev, y_train, y_dev = split_data(x_shuffled, y_shuffled, 0.5)
+
 graph = tf.Graph()
 with graph.as_default():
     sess = tf.Session()
     with sess.as_default():
         # model = Softmax(
         #     sent_length=sent_length,
-        #     class_num=5,
+        #     class_num=2,
         #     embedding_size=embedding_size,
         #     l2_lambda=0.0
         # )
@@ -38,11 +48,11 @@ with graph.as_default():
             embedding_size=embedding_size,
             l2_lambda=0,
             filter_num=128,
-            filter_sizes=[1, 2, 3]
+            filter_sizes=[1, 2, 3, 4, 5]
         )
 
         global_step = tf.Variable(0, name="global_step", trainable=False)
-        optimizer = tf.train.AdadeltaOptimizer(1e-4)
+        optimizer = tf.train.AdamOptimizer(1e-3)
         grads_and_vars = optimizer.compute_gradients(model.loss)
         train_op = optimizer.apply_gradients(grads_and_vars, global_step=global_step)
 

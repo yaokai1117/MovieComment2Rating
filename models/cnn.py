@@ -19,8 +19,8 @@ class CNN(object):
             with tf.name_scope("conv-maxpool-%s" % filter_size):
                 # Convolution Layer
                 filter_shape = [filter_size, embedding_size, 1, filter_num]
-                weights = tf.Variable(tf.truncated_normal(filter_shape, stddev=0.1), name="W")
-                bias = tf.Variable(tf.constant(0.1, shape=[filter_num]), name="b")
+                weights = tf.Variable(tf.truncated_normal(filter_shape, stddev=0.01), name="W")
+                bias = tf.Variable(tf.constant(0.01, shape=[filter_num]), name="b")
                 conv = tf.nn.conv2d(
                     self.embedded_chars_expanded,
                     weights,

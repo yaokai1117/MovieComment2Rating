@@ -4,7 +4,7 @@ import json
 import re
 import gensim
 import numpy as np
-from random import shuffle
+import pickle
 
 
 def get_data(filename, size):
@@ -19,7 +19,7 @@ def get_data(filename, size):
             if match is None:
                 continue
             comments.append(comment["Text"])
-            ratings.append(int(match.group()) / 10)
+            ratings.append(int(match.group()) / 10 - 1)
             cnt += 1
             if cnt == size:
                 break
@@ -28,7 +28,7 @@ def get_data(filename, size):
 
 
 def get_embedding_dict(corpus):
-    model = gensim.models.Word2Vec.load("data/model.bin")
+    model = gensim.models.Word2Vec.load("data\\model.bin")
     embedding_dict = dict()
     for sent in corpus:
         words = sent.split(" ")
@@ -78,13 +78,35 @@ def remove_unknown_word(data):
         ret.append(' '.join(word for word in splited if word in model.vocab))
     return ret
 
+
+# test english corpus
+def get_data_eng():
+    x_raw = []
+    y_raw = []
+    with open("D:\\rt-polarity.pos", encoding="utf8") as f:
+        x_raw = [line for line in f]
+        y_raw = [0 for _ in x_raw]
+
+    with open("D:\\rt-polarity.neg", encoding="utf8") as f:
+        x_temp = [line for line in f]
+        y_temp = [1 for _ in x_temp]
+        x_raw.extend(x_temp)
+        y_raw.extend(y_temp)
+    sent_length = max(len(sent.split(" ")) for sent in x_raw)
+    embedding_size = 300
+    embedding_dict = pickle.load(open("D:\\embedding_dict.p", "rb"))
+    x = np.zeros([len(x_raw), sent_length, embedding_size])
+    for i, sent in enumerate(x_raw):
+        for j, word in enumerate(sent.split(" ")):
+            if word in embedding_dict:
+                x[i][j] = embedding_dict[word]
+            else:
+                x[i][j] = np.zeros(embedding_size)
+    y = (np.arange(2) == np.array(y_raw)[:, None]).astype(np.float32)
+    return x, y
+
+
 if __name__ == '__main__':
-    comments, ratings = get_data("D:\AllComments.segmented.txt", 10000)
-    train, dev, _, _ = split_data(comments, ratings, 0.1, True)
-    sent_length = max(len(c.split(' ')) for c in remove_unknown_word(comments))
-    a = train[:10]
-    clean = remove_unknown_word(comments)
-    b = embed(a, get_embedding_dict(comments), 98, 100)
-    print(len(comments))
-    print(len(dev))
-    print(len(train))
+    x1, y1 = get_data_eng()
+
+    print(len(y1))
