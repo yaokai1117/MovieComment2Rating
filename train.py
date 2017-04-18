@@ -1,20 +1,18 @@
 import tensorflow as tf
-import numpy as np
 import time
 import os
 import datetime
 from util import *
-from models.softmax import Softmax
 from models.cnn import CNN
 
 
 # prepare raw data and embedding dict
 comments, ratings = get_data("D:\\AllComments.segmented.txt", 50000)
-comments = remove_unknown_word(comments)
+# comments = remove_unknown_word(comments)
 x_train_raw, x_dev_raw, y_train_raw, y_dev_raw = split_data(comments, ratings, 0.2)
 embedding_dict = get_embedding_dict(comments)
 sent_length = max(len(c.split(' ')) for c in comments)
-embedding_size = 100
+embedding_size = 300
 
 # get input data
 x_train = embed(x_train_raw, embedding_dict, sent_length, embedding_size)
@@ -48,14 +46,13 @@ with graph.as_default():
             embedding_size=embedding_size,
             l2_lambda=0,
             filter_num=128,
-            filter_sizes=[1, 2, 3, 4, 5]
+            filter_sizes=[1, 2, 3]
         )
 
         global_step = tf.Variable(0, name="global_step", trainable=False)
         optimizer = tf.train.AdamOptimizer(1e-3)
         grads_and_vars = optimizer.compute_gradients(model.loss)
         train_op = optimizer.apply_gradients(grads_and_vars, global_step=global_step)
-
 
         timestamp = str(int(time.time()))
         out_dir = os.path.abspath(os.path.join("D:\\", "runs", timestamp))
@@ -101,7 +98,7 @@ with graph.as_default():
             feed_dict = {
                 model.input_x: x_batch,
                 model.input_y: y_batch,
-                model.dropout_keep_prob: 0.5
+                model.dropout_keep_prob: 1
             }
             _, step, summaries, loss, accuracy = sess.run(
                 [train_op, global_step, train_summary_op, model.loss, model.accuracy],
@@ -118,7 +115,7 @@ with graph.as_default():
             feed_dict = {
                 model.input_x: x_batch,
                 model.input_y: y_batch,
-                model.dropout_keep_prob: 0.5
+                model.dropout_keep_prob: 1
             }
             step, summaries, loss, accuracy = sess.run(
                 [global_step, dev_summary_op, model.loss, model.accuracy],

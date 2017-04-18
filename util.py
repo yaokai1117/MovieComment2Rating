@@ -28,7 +28,8 @@ def get_data(filename, size):
 
 
 def get_embedding_dict(corpus):
-    model = gensim.models.Word2Vec.load("data\\model.bin")
+    # model = gensim.models.Word2Vec.load("data\\model.bin")
+    model = gensim.models.Word2Vec.load("D:\\model_300.bin")
     embedding_dict = dict()
     for sent in corpus:
         words = sent.split(" ")
@@ -36,7 +37,7 @@ def get_embedding_dict(corpus):
             if word in model.vocab:
                 embedding_dict[word] = model[word]
             else:
-                embedding_dict[word] = np.zeros(100)
+                embedding_dict[word] = np.zeros(300)
     return embedding_dict
 
 
