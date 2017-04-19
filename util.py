@@ -5,6 +5,10 @@ import re
 import gensim
 import numpy as np
 import pickle
+import configparser
+
+config = configparser.ConfigParser()
+config.read("config.ini")
 
 
 def get_data(filename, size):
@@ -28,8 +32,7 @@ def get_data(filename, size):
 
 
 def get_embedding_dict(corpus):
-    # model = gensim.models.Word2Vec.load("data\\model.bin")
-    model = gensim.models.Word2Vec.load("D:\\model_300.bin")
+    model = gensim.models.Word2Vec.load(config["Paths"]["embedding_path"])
     embedding_dict = dict()
     for sent in corpus:
         words = sent.split(" ")
@@ -37,7 +40,7 @@ def get_embedding_dict(corpus):
             if word in model.vocab:
                 embedding_dict[word] = model[word]
             else:
-                embedding_dict[word] = np.zeros(300)
+                embedding_dict[word] = np.zeros(int(config["Sizes"]["embedding_size"]))
     return embedding_dict
 
 
@@ -71,31 +74,22 @@ def batch_iter(data, batch_size, num_epochs, shuffle=True):
             yield shuffled_data[start_index:end_index]
 
 
-def remove_unknown_word(data):
-    ret = []
-    model = gensim.models.Word2Vec.load("data/model.bin")
-    for sent in data:
-        splited = sent.split(" ")
-        ret.append(' '.join(word for word in splited if word in model.vocab))
-    return ret
-
-
 # test english corpus
 def get_data_eng():
     x_raw = []
     y_raw = []
-    with open("D:\\rt-polarity.pos", encoding="utf8") as f:
+    with open(config["Paths"]["eng_data_path_pos"], encoding="utf8") as f:
         x_raw = [line for line in f]
         y_raw = [0 for _ in x_raw]
 
-    with open("D:\\rt-polarity.neg", encoding="utf8") as f:
+    with open(config["Paths"]["eng_data_path_neg"], encoding="utf8") as f:
         x_temp = [line for line in f]
         y_temp = [1 for _ in x_temp]
         x_raw.extend(x_temp)
         y_raw.extend(y_temp)
     sent_length = max(len(sent.split(" ")) for sent in x_raw)
     embedding_size = 300
-    embedding_dict = pickle.load(open("D:\\embedding_dict.p", "rb"))
+    embedding_dict = pickle.load(open(config["Paths"]["eng_embedding_path"], "rb"))
     x = np.zeros([len(x_raw), sent_length, embedding_size])
     for i, sent in enumerate(x_raw):
         for j, word in enumerate(sent.split(" ")):

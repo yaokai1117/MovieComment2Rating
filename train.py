@@ -7,12 +7,11 @@ from models.cnn import CNN
 
 
 # prepare raw data and embedding dict
-comments, ratings = get_data("D:\\AllComments.segmented.txt", 50000)
-# comments = remove_unknown_word(comments)
+comments, ratings = get_data(config["Paths"]["data_path"], int(config["Sizes"]["data_size"]))
 x_train_raw, x_dev_raw, y_train_raw, y_dev_raw = split_data(comments, ratings, 0.2)
 embedding_dict = get_embedding_dict(comments)
 sent_length = max(len(c.split(' ')) for c in comments)
-embedding_size = 300
+embedding_size = int(config["Sizes"]["embedding_size"])
 
 # get input data
 x_train = embed(x_train_raw, embedding_dict, sent_length, embedding_size)
@@ -92,9 +91,6 @@ with graph.as_default():
 
 
         def train_step(x_batch, y_batch):
-            """
-            A single training step
-            """
             feed_dict = {
                 model.input_x: x_batch,
                 model.input_y: y_batch,
@@ -109,9 +105,6 @@ with graph.as_default():
 
 
         def dev_step(x_batch, y_batch, writer=None):
-            """
-            Evaluates model on a dev set
-            """
             feed_dict = {
                 model.input_x: x_batch,
                 model.input_y: y_batch,
