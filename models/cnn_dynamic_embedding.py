@@ -2,16 +2,21 @@ import numpy as np
 import tensorflow as tf
 
 
-# just to see if it works
-class CNN(object):
-    def __init__(self, sent_length, class_num, embedding_size, l2_lambda, filter_sizes, filter_num):
-        self.input_x = tf.placeholder(tf.float32, [None, sent_length, embedding_size], name="input_x")
+class CNNDynamic(object):
+    def __init__(self, sent_length, class_num,
+                 embedding_size, initial_embedding_dict,
+                 l2_lambda, filter_sizes, filter_num):
+
+        self.input_x = tf.placeholder(tf.int32, [None, sent_length], name="input_x")
         self.input_y = tf.placeholder(tf.float32, [None, class_num], name="input_y")
         self.dropout_keep_prob = tf.placeholder(tf.float32, name="dropout_keep_prob")
 
         l2_loss = tf.constant(0.0)
 
-        self.embedded_chars_expanded = tf.expand_dims(self.input_x, -1)
+        with tf.device("/cpu:0"), tf.name_scope("embedding"):
+            self.embedding_dict = tf.Variable(initial_embedding_dict, name="Embedding", dtype=tf.float32)
+            self.embedded_chars = tf.nn.embedding_lookup(self.embedding_dict, self.input_x)
+            self.embedded_chars_expanded = tf.expand_dims(self.embedded_chars, -1)
 
         # Create a convolution + maxpool layer for each filter size
         pooled_outputs = []
