@@ -6,9 +6,12 @@ import gensim
 import numpy as np
 import pickle
 import configparser
+import platform
 
 config = configparser.ConfigParser()
 config.read("config.ini")
+paths = config["Win-Paths" if platform.system() == "Windows" else "Paths"]
+sizes = config["Win-Sizes" if platform.system() == "Windows" else "Sizes"]
 
 
 def get_data(filename, size):
@@ -38,18 +41,18 @@ def get_data_eng():
     """ Get english 2-class data """
     x_raw = []
     y_raw = []
-    with open(config["Paths"]["eng_data_path_pos"], encoding="utf8") as f:
+    with open(paths["eng_data_path_pos"], encoding="utf8") as f:
         x_raw = [line for line in f]
         y_raw = [0 for _ in x_raw]
 
-    with open(config["Paths"]["eng_data_path_neg"], encoding="utf8") as f:
+    with open(paths["eng_data_path_neg"], encoding="utf8") as f:
         x_temp = [line for line in f]
         y_temp = [1 for _ in x_temp]
         x_raw.extend(x_temp)
         y_raw.extend(y_temp)
     sent_length = max(len(sent.split(" ")) for sent in x_raw)
     embedding_size = 300
-    embedding_dict = pickle.load(open(config["Paths"]["eng_embedding_path"], "rb"))
+    embedding_dict = pickle.load(open(paths["eng_embedding_path"], "rb"))
     x = np.zeros([len(x_raw), sent_length, embedding_size])
     for i, sent in enumerate(x_raw):
         for j, word in enumerate(sent.split(" ")):
@@ -84,7 +87,7 @@ def char2idx(data, vocab_dict, sent_length):
 
 def get_embedding_dict(corpus):
     """ Return embedding dict """
-    model = gensim.models.Word2Vec.load(config["Paths"]["embedding_path"])
+    model = gensim.models.Word2Vec.load(paths["embedding_path"])
     embedding_dict = dict()
     for sent in corpus:
         words = sent.split(" ")
@@ -92,7 +95,7 @@ def get_embedding_dict(corpus):
             if word in model.vocab:
                 embedding_dict[word] = model[word]
             else:
-                embedding_dict[word] = np.zeros(int(config["Sizes"]["embedding_size"]))
+                embedding_dict[word] = np.zeros(int(sizes["embedding_size"]))
     return embedding_dict
 
 
