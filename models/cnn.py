@@ -4,10 +4,12 @@ import tensorflow as tf
 
 # just to see if it works
 class CNN(object):
-    def __init__(self, sent_length, class_num, embedding_size, l2_lambda, filter_sizes, filter_num):
+    def __init__(self, sent_length, class_num,
+                 embedding_size, l2_lambda, filter_sizes, filter_num,
+                 dropout_keep_prop_1, dropout_keep_prop_2):
         self.input_x = tf.placeholder(tf.float32, [None, sent_length, embedding_size], name="input_x")
         self.input_y = tf.placeholder(tf.float32, [None, class_num], name="input_y")
-        self.dropout_keep_prob = tf.placeholder(tf.float32, name="dropout_keep_prob")
+
 
         l2_loss = tf.constant(0.0)
 
@@ -45,7 +47,7 @@ class CNN(object):
 
         # Add dropout
         with tf.name_scope("dropout"):
-            self.h_drop = tf.nn.dropout(self.h_pool_flat, self.dropout_keep_prob)
+            self.h_drop = tf.nn.dropout(self.h_pool_flat, dropout_keep_prop_2)
 
         with tf.name_scope("linear"):
             weights = tf.get_variable(

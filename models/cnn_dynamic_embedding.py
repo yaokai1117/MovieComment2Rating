@@ -5,11 +5,11 @@ import tensorflow as tf
 class CNNDynamic(object):
     def __init__(self, sent_length, class_num,
                  embedding_size, initial_embedding_dict,
-                 l2_lambda, filter_sizes, filter_num):
+                 l2_lambda, filter_sizes, filter_num,
+                 dropout_keep_prop_1, dropout_keep_prop_2):
 
         self.input_x = tf.placeholder(tf.int32, [None, sent_length], name="input_x")
         self.input_y = tf.placeholder(tf.float32, [None, class_num], name="input_y")
-        self.dropout_keep_prob = tf.placeholder(tf.float32, name="dropout_keep_prob")
 
         l2_loss = tf.constant(0.0)
 
@@ -17,6 +17,12 @@ class CNNDynamic(object):
             self.embedding_dict = tf.Variable(initial_embedding_dict, name="Embedding", dtype=tf.float32)
             self.embedded_chars = tf.nn.embedding_lookup(self.embedding_dict, self.input_x)
             self.embedded_chars_expanded = tf.expand_dims(self.embedded_chars, -1)
+
+        # Add dropout
+        with tf.name_scope("dropout_1"):
+            self.embedded_chars_dropped = tf.nn.dropout(self.embedded_chars_expanded, dropout_keep_prop_2,
+                                                        noise_shape=[tf.shape(self.embedded_chars_expanded)[0],
+                                                                     sent_length, 1, 1])
 
         # Create a convolution + maxpool layer for each filter size
         pooled_outputs = []
@@ -27,7 +33,7 @@ class CNNDynamic(object):
                 weights = tf.Variable(tf.truncated_normal(filter_shape, stddev=0.01), name="W")
                 bias = tf.Variable(tf.constant(0.01, shape=[filter_num]), name="b")
                 conv = tf.nn.conv2d(
-                    self.embedded_chars_expanded,
+                    self.embedded_chars_dropped,
                     weights,
                     strides=[1, 1, 1, 1],
                     padding="VALID",
@@ -49,8 +55,8 @@ class CNNDynamic(object):
         self.h_pool_flat = tf.reshape(self.h_pool, [-1, num_filters_total])
 
         # Add dropout
-        with tf.name_scope("dropout"):
-            self.h_drop = tf.nn.dropout(self.h_pool_flat, self.dropout_keep_prob)
+        with tf.name_scope("dropout_2"):
+            self.h_drop = tf.nn.dropout(self.h_pool_flat, dropout_keep_prop_2)
 
         with tf.name_scope("linear"):
             weights = tf.get_variable(

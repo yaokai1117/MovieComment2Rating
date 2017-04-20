@@ -63,7 +63,9 @@ with graph.as_default():
             initial_embedding_dict=embedding_dict_array,
             l2_lambda=0,
             filter_num=128,
-            filter_sizes=[1, 2, 3]
+            filter_sizes=[1, 2, 3],
+            dropout_keep_prop_1=0.7,
+            dropout_keep_prop_2=0.7
         )
 
         global_step = tf.Variable(0, name="global_step", trainable=False)
@@ -111,8 +113,7 @@ with graph.as_default():
         def train_step(x_batch, y_batch):
             feed_dict = {
                 model.input_x: x_batch,
-                model.input_y: y_batch,
-                model.dropout_keep_prob: 1
+                model.input_y: y_batch
             }
             _, step, summaries, loss, accuracy = sess.run(
                 [train_op, global_step, train_summary_op, model.loss, model.accuracy],
@@ -125,8 +126,7 @@ with graph.as_default():
         def dev_step(x_batch, y_batch, writer=None):
             feed_dict = {
                 model.input_x: x_batch,
-                model.input_y: y_batch,
-                model.dropout_keep_prob: 1
+                model.input_y: y_batch
             }
             step, summaries, loss, accuracy = sess.run(
                 [global_step, dev_summary_op, model.loss, model.accuracy],
