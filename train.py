@@ -120,7 +120,7 @@ with graph.as_default():
 
         # Generate batches
         batches = batch_iter(
-            list(zip(x_train, y_train)), 64, 200)
+            list(zip(x_train, y_train)), 64, 100)
         batch_num_per_epoch = int(len(x_train) / 64) + 1
         # Training loop. For each batch...
         for batch in batches:
