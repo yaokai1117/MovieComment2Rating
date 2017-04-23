@@ -8,7 +8,8 @@ from models.cnn_dynamic_embedding import CNNDynamic
 
 
 # prepare raw data and embedding dict
-comments, ratings, movie_ids = get_data(paths["data_path"], int(sizes["data_size"]))
+comments, ratings, movie_ids = get_data(paths["data_path"], int(sizes["data_size"]), True)
+class_num = 2
 x_train_raw, x_dev_raw, y_train_raw, y_dev_raw = split_data(comments, ratings, 0.2)
 embedding_dict = get_embedding_dict(comments)
 sent_length = max(len(c.split(' ')) for c in comments)
@@ -25,8 +26,8 @@ embedding_dict_array = np.zeros([len(vocab_dict), embedding_size])
 for i, word in enumerate(embedding_dict.keys()):
     embedding_dict_array[vocab_dict[word]] = embedding_dict[word]
 
-y_train = (np.arange(5) == np.array(y_train_raw)[:, None]).astype(np.float32)
-y_dev = (np.arange(5) == np.array(y_dev_raw)[:, None]).astype(np.float32)
+y_train = (np.arange(class_num) == np.array(y_train_raw)[:, None]).astype(np.float32)
+y_dev = (np.arange(class_num) == np.array(y_dev_raw)[:, None]).astype(np.float32)
 
 # for english corpus
 # x, y = get_data_eng()
@@ -58,14 +59,14 @@ with graph.as_default():
         # )
         model = CNNDynamic(
             sent_length=sent_length,
-            class_num=5,
+            class_num=class_num,
             embedding_size=300,
             initial_embedding_dict=embedding_dict_array,
             l2_lambda=0,
             filter_num=128,
             filter_sizes=[1, 2, 3],
-            dropout_keep_prop_1=0.7,
-            dropout_keep_prop_2=0.7
+            dropout_keep_prop_1=1.0,
+            dropout_keep_prop_2=1.0
         )
 
         global_step = tf.Variable(0, name="global_step", trainable=False)
@@ -138,7 +139,7 @@ with graph.as_default():
 
         # Generate batches
         batches = batch_iter(
-            list(zip(x_train, y_train)), 64, 100)
+            list(zip(x_train, y_train)), 64, 30)
         batch_num_per_epoch = int(len(x_train) / 64) + 1
         # Training loop. For each batch...
         for batch in batches:

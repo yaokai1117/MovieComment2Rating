@@ -14,7 +14,7 @@ paths = config["Win-Paths" if platform.system() == "Windows" else "Paths"]
 sizes = config["Win-Sizes" if platform.system() == "Windows" else "Sizes"]
 
 
-def get_data(filename, size):
+def get_data(filename, size, to_binary=False):
     """  Extract text, label and movie_id from raw json file """
     comments = []
     ratings = []
@@ -27,9 +27,18 @@ def get_data(filename, size):
             match = re.search("\d+", rating_str)
             if match is None:
                 continue
-            comments.append(comment["Text"])
-            ratings.append(int(match.group()) / 10 - 1)
+            rating = int(match.group()) / 10 - 1
+            if to_binary:
+                if rating == 2:
+                    continue
+                elif rating < 2:
+                    ratings.append(0)
+                else:
+                    ratings.append(1)
+            else:
+                ratings.append(int(match.group()) / 10 - 1)
             movie_ids.append(comment["MovieId"])
+            comments.append(comment["Text"])
             cnt += 1
             if cnt == size:
                 break
