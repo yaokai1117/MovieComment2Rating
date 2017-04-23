@@ -20,7 +20,7 @@ class CNNDynamic(object):
 
         # Add dropout
         with tf.name_scope("dropout_1"):
-            self.embedded_chars_dropped = tf.nn.dropout(self.embedded_chars_expanded, dropout_keep_prop_2,
+            self.embedded_chars_dropped = tf.nn.dropout(self.embedded_chars_expanded, dropout_keep_prop_1,
                                                         noise_shape=[tf.shape(self.embedded_chars_expanded)[0],
                                                                      sent_length, 1, 1])
 

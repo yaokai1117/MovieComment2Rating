@@ -8,7 +8,8 @@ from models.cnn_dynamic_embedding import CNNDynamic
 
 
 # prepare raw data and embedding dict
-comments, ratings, movie_ids = get_data(paths["data_path"], int(sizes["data_size"]))
+# comments, ratings, movie_ids = get_data(paths["data_path"], int(sizes["data_size"]))
+comments, ratings, movie_ids = get_data_DMSC(int(sizes["data_size"]))
 x_train_raw, x_dev_raw, y_train_raw, y_dev_raw = split_data(comments, ratings, 0.2)
 embedding_dict = get_embedding_dict(comments)
 sent_length = max(len(c.split(' ')) for c in comments)
@@ -64,8 +65,8 @@ with graph.as_default():
             l2_lambda=0,
             filter_num=128,
             filter_sizes=[1, 2, 3],
-            dropout_keep_prop_1=0.7,
-            dropout_keep_prop_2=0.7
+            dropout_keep_prop_1=1.0,
+            dropout_keep_prop_2=1.0
         )
 
         global_step = tf.Variable(0, name="global_step", trainable=False)
@@ -138,7 +139,7 @@ with graph.as_default():
 
         # Generate batches
         batches = batch_iter(
-            list(zip(x_train, y_train)), 64, 100)
+            list(zip(x_train, y_train)), 64, 30)
         batch_num_per_epoch = int(len(x_train) / 64) + 1
         # Training loop. For each batch...
         for batch in batches:

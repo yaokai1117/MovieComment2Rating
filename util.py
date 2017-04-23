@@ -64,6 +64,32 @@ def get_data_eng():
     return x, y
 
 
+def get_data_DMSC(size):
+    """ Get DMSC data set """
+    comments = []
+    ratings = []
+    movie_ids = []
+    with open(paths["dmsc_data_path"], encoding="UTF-8") as f:
+        cnt = 0
+        for line in f:
+            if cnt == 0:
+                cnt += 1
+                continue
+            splited = line.split(',')
+            if len(splited) != 10:
+                continue
+            if not (splited[0].strip().isdigit() and splited[7].strip().isdigit()):
+                continue
+            comments.append(splited[8])
+            ratings.append(int(splited[7]) - 1)
+            movie_ids.append(splited[1])
+            if cnt == size:
+                break
+            cnt += 1
+
+    return comments, ratings, movie_ids
+
+
 def get_char2idx_dict(data):
     """ Return a map from each word to an index """
     vocab_dict = dict()
