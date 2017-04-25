@@ -8,12 +8,17 @@ from models.cnn_dynamic_embedding import CNNDynamic
 
 
 # prepare raw data and embedding dict
-comments, ratings, movie_ids = get_data(paths["data_path"], int(sizes["data_size"]), True)
-class_num = 2
-x_train_raw, x_dev_raw, y_train_raw, y_dev_raw = split_data(comments, ratings, 0.2)
+
+# comments, ratings, movie_ids = get_data(paths["data"], int(sizes["data"]), True)
+# x_train_raw, x_dev_raw, y_train_raw, y_dev_raw = split_data(comments, ratings, 0.2)
+class_num = 5
+x_train_raw, y_train_raw, _ = get_data(paths["train"], 50000, class_num == 2)
+x_dev_raw, y_dev_raw, _ = get_data(paths["dev"], 10000, class_num == 2)
+x_test_raw, y_test_raw, _ = get_data(paths["test"], 10000, class_num == 2)
+comments = x_train_raw + x_dev_raw + x_test_raw
 embedding_dict = get_embedding_dict(comments)
 sent_length = max(len(c.split(' ')) for c in comments)
-embedding_size = int(sizes["embedding_size"])
+embedding_size = int(sizes["embedding"])
 
 # get input data
 # x_train = embed(x_train_raw, embedding_dict, sent_length, embedding_size)
@@ -75,7 +80,7 @@ with graph.as_default():
         train_op = optimizer.apply_gradients(grads_and_vars, global_step=global_step)
 
         timestamp = str(int(time.time()))
-        out_dir = os.path.abspath(os.path.join(paths["output_path"], "runs", timestamp))
+        out_dir = os.path.abspath(os.path.join(paths["output"], "runs", timestamp))
         print("Writing to {}\n".format(out_dir))
 
         # Keep track of gradient values and sparsity (optional)

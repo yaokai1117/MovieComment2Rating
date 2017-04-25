@@ -11,7 +11,7 @@ import platform
 config = configparser.ConfigParser()
 config.read("config.ini")
 paths = config["Win-Paths" if platform.system() == "Windows" else "Paths"]
-sizes = config["Win-Sizes" if platform.system() == "Windows" else "Sizes"]
+sizes = config["Sizes"]
 
 
 def get_data(filename, size, to_binary=False):
@@ -50,18 +50,18 @@ def get_data_eng():
     """ Get english 2-class data """
     x_raw = []
     y_raw = []
-    with open(paths["eng_data_path_pos"], encoding="utf8") as f:
+    with open(paths["eng_data_pos"], encoding="utf8") as f:
         x_raw = [line for line in f]
         y_raw = [0 for _ in x_raw]
 
-    with open(paths["eng_data_path_neg"], encoding="utf8") as f:
+    with open(paths["eng_data_neg"], encoding="utf8") as f:
         x_temp = [line for line in f]
         y_temp = [1 for _ in x_temp]
         x_raw.extend(x_temp)
         y_raw.extend(y_temp)
     sent_length = max(len(sent.split(" ")) for sent in x_raw)
     embedding_size = 300
-    embedding_dict = pickle.load(open(paths["eng_embedding_path"], "rb"))
+    embedding_dict = pickle.load(open(paths["eng_embedding"], "rb"))
     x = np.zeros([len(x_raw), sent_length, embedding_size])
     for i, sent in enumerate(x_raw):
         for j, word in enumerate(sent.split(" ")):
@@ -78,7 +78,7 @@ def get_data_DMSC(size):
     comments = []
     ratings = []
     movie_ids = []
-    with open(paths["dmsc_data_path"], encoding="UTF-8") as f:
+    with open(paths["dmsc_data"], encoding="UTF-8") as f:
         cnt = 0
         for line in f:
             if cnt == 0:
@@ -102,7 +102,8 @@ def get_data_DMSC(size):
 def get_char2idx_dict(data):
     """ Return a map from each word to an index """
     vocab_dict = dict()
-    max_id = 0
+    vocab_dict[""] = 0
+    max_id = 1
     for sent in data:
         for word in sent.split(" "):
             if word not in vocab_dict:
@@ -122,7 +123,7 @@ def char2idx(data, vocab_dict, sent_length):
 
 def get_embedding_dict(corpus):
     """ Return embedding dict """
-    model = gensim.models.Word2Vec.load(paths["embedding_path"])
+    model = gensim.models.Word2Vec.load(paths["embedding"])
     embedding_dict = dict()
     for sent in corpus:
         words = sent.split(" ")
@@ -130,7 +131,7 @@ def get_embedding_dict(corpus):
             if word in model.vocab:
                 embedding_dict[word] = model[word]
             else:
-                embedding_dict[word] = np.zeros(int(sizes["embedding_size"]))
+                embedding_dict[word] = np.zeros(int(sizes["embedding"]))
     return embedding_dict
 
 
