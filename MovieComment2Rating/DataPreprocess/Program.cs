@@ -7,7 +7,6 @@ using System.IO;
 using System.Net;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
-using javax.swing.text;
 using Newtonsoft.Json;
 
 namespace DataPreprocess
@@ -69,7 +68,7 @@ namespace DataPreprocess
             }
         }
 
-        static void DoStatistics()
+        static void DoStatisticsRaw()
         {
             int commentCnt = 0, reviewCnt = 0;
             using (StreamReader sr = File.OpenText(DataPath))
@@ -105,7 +104,7 @@ namespace DataPreprocess
             var contentNode = doc.DocumentNode.SelectSingleNode("//div[@id=\"content\"]");
             var movieName = contentNode.SelectSingleNode("//h1[1]").InnerText;
             movieName = movieName.Substring(0, movieName.Length - 3);
-            
+
             // get movie id
             var movieIdMatch = Regex.Match(url, @"\d{6,9}");
             var movieId = movieIdMatch.Value;
@@ -183,7 +182,7 @@ namespace DataPreprocess
                 Username = username
             };
         }
-        
+
 
         static void GetAllComment()
         {
@@ -238,9 +237,9 @@ namespace DataPreprocess
                     }
                 }
             }
-            File.WriteAllText(@"D:\CommentsCnt.txt", num + "\t" + movieIdSet.Count);
+            File.WriteAllText(@"D:\ReviewsCnt.txt", num + "\t" + movieIdSet.Count);
         }
-        
+
         static void CleanData()
         {
             using (StreamReader sr = File.OpenText(DataFolder + @"AllComments.txt"))
@@ -365,32 +364,108 @@ namespace DataPreprocess
             return dict;
         }
 
+        static Metric DoStatisticsComments(string filename)
+        {
+            var ret = new Metric();
+            var lines = File.ReadLines(DataFolder + filename);
+            foreach (var line in lines)
+            {
+                var comment = JsonConvert.DeserializeObject<Comment>(line);
+                if (ret.Ids.Contains(comment.Cid))
+                    continue;
+                ret.Ids.Add(comment.Cid);
+
+                if (!ret.Movies.ContainsKey(comment.MovieId))
+                    ret.Movies.Add(comment.MovieId, 0);
+                ret.Movies[comment.MovieId]++;
+
+                if (!ret.Users.ContainsKey(comment.Username))
+                    ret.Users.Add(comment.Username, 0);
+                ret.Users[comment.Username]++;
+            }
+            return ret;
+        }
+
+        static void OutputMetric(Metric metric)
+        {
+            Console.WriteLine($"All different comments {metric.Ids.Count}");
+            Console.WriteLine($"All different movies {metric.Movies.Count}");
+            Console.WriteLine($"All different users {metric.Users.Count}");
+            Console.WriteLine();
+
+            Console.WriteLine($"All movies more than 3 {metric.Movies.Count(t => t.Value >= 3)}");
+            Console.WriteLine($"All users more than 3 {metric.Users.Count(t => t.Value >= 3)}");
+            Console.WriteLine($"Commetns for active users 3 {metric.Users.Sum(t => t.Value > 3 ? t.Value : 0)}");
+            Console.WriteLine();
+
+            Console.WriteLine($"All movies more than 5 {metric.Movies.Count(t => t.Value >= 5)}");
+            Console.WriteLine($"All users more than 5 {metric.Users.Count(t => t.Value >= 5)}");
+            Console.WriteLine($"Commetns for active users 3 {metric.Users.Sum(t => t.Value > 5 ? t.Value : 0)}");
+            Console.WriteLine();
+
+            Console.WriteLine($"All movies more than 10 {metric.Movies.Count(t => t.Value >= 10)}");
+            Console.WriteLine($"All users more than 10 {metric.Users.Count(t => t.Value >= 10)}");
+            Console.WriteLine($"Commetns for active users 3 {metric.Users.Sum(t => t.Value > 10 ? t.Value : 0)}");
+            Console.WriteLine();
+            Console.ReadLine();
+        }
+
+        static void GetBetterData(string filename)
+        {
+            var metric = DoStatisticsComments(filename);
+            var validUsers = metric.Users.Where(t => t.Value > 5).ToDictionary(t => t.Key, t => t.Value);
+            var lines = File.ReadLines(DataFolder + filename);
+            var ids = new HashSet<string>();
+            var results = new List<string>();
+            int cnt = 0;
+            foreach (var line in lines)
+            {
+                var comment = JsonConvert.DeserializeObject<Comment>(line);
+                if (validUsers.ContainsKey(comment.Username))
+                {
+                    if (ids.Contains(comment.Cid))
+                        continue;
+                    ids.Add(comment.Cid);
+                    results.Add(line);
+                    cnt++;
+                    if (cnt == 70000)
+                        break;
+                }
+            }
+            File.WriteAllLines(DataFolder + @"Comment70k.txt", results);
+        }
+
+        static void ShuffleAndDivide(string filename, int trainSize, int devSize, int testSize)
+        {
+            var lines = File.ReadAllLines(DataFolder + filename);
+            if (lines.Length < trainSize + testSize + devSize)
+            {
+                Console.WriteLine("We don't have so many sentences !");
+                return;
+            }
+            lines = lines.OrderBy(t => Guid.NewGuid()).ToArray();
+            File.WriteAllLines(DataFolder + filename + ".train.txt", lines.Take(trainSize));
+            File.WriteAllLines(DataFolder + filename + ".dev.txt", lines.Skip(trainSize).Take(devSize));
+            File.WriteAllLines(DataFolder + filename + ".test.txt", lines.Skip(trainSize + devSize).Take(testSize));
+        }
+
+        // for DMSC data
+        static void GetAllCommentDMSC(string filename)
+        {
+            var lines = File.ReadLines(filename);
+            foreach (var line in lines)
+            {
+                var splited = line.Split(',');
+                // not used
+            }
+        }
+
+
 
         static void Main(string[] args)
         {
-            //GetAllComment();
-            //GetReivews(100000);
-            //CleanData();
-            //GetRawTextData(true, true);
-            //RestoreSegmented();
-
-            //var dict = VocCount(DataFolder + "AllReviews.txt");
-            //Console.WriteLine(dict.Where(t => t.Value > 4).Count());
-            //Console.ReadLine();
-
-            DoStatistics();
-
-            //int cnt = 0;
-            //using (StreamReader sr = File.OpenText(@"D:\AllComments.txt"))
-            //{
-            //    while (!sr.EndOfStream)
-            //    {
-            //        var line = sr.ReadLine();
-            //        cnt++;
-            //    }
-            //}
-            //Console.WriteLine(cnt);
-            //Console.ReadLine();
+            GetBetterData("AllComments.segmented.txt");
+            ShuffleAndDivide("Comment70k.txt", 50000, 10000, 10000);
         }
 
 
