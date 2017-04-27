@@ -35,4 +35,16 @@ namespace DataPreprocess
         public string MovieId { get; set; }
     }
 
+    public class Metric
+    {
+        public Metric()
+        {
+            Ids = new HashSet<string>();
+            Users = new Dictionary<string, int>();
+            Movies = new Dictionary<string, int>();
+        }
+        public HashSet<string> Ids;
+        public Dictionary<string, int> Users;
+        public Dictionary<string, int> Movies;
+    }
 }
