@@ -99,7 +99,7 @@ def get_data_DMSC(size):
     return comments, ratings, movie_ids
 
 
-def get_char2idx_dict(data):
+def dump_char2idx_dict(data):
     """ Return a map from each word to an index """
     vocab_dict = dict()
     vocab_dict[""] = 0
@@ -109,7 +109,12 @@ def get_char2idx_dict(data):
             if word not in vocab_dict:
                 vocab_dict[word] = max_id
                 max_id += 1
+    pickle.dump(vocab_dict, open(paths["vocab_dict"], "wb"))
     return vocab_dict
+
+
+def get_char2idx_dict():
+    return pickle.load(open(paths["vocab_dict"], "rb"))
 
 
 def char2idx(data, vocab_dict, sent_length):
@@ -169,6 +174,9 @@ def batch_iter(data, batch_size, num_epochs, shuffle=True):
 
 
 if __name__ == '__main__':
-    x1, y1 = get_data_eng()
-
-    print(len(y1))
+    x_train_raw, y_train_raw, _ = get_data(paths["train"], 50000)
+    x_dev_raw, y_dev_raw, _ = get_data(paths["dev"], 10000)
+    x_test_raw, y_test_raw, _ = get_data(paths["test"], 10000)
+    comments = x_train_raw + x_dev_raw + x_test_raw
+    dump_char2idx_dict(comments)
+    print("done.")
