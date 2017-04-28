@@ -2,28 +2,39 @@ import tensorflow as tf
 import time
 import os
 import datetime
+import sys
 from util import *
 from models.cnn import CNN
 from models.cnn_dynamic_embedding import CNNDynamic
 
 
+# read hyperparameter from config file
+param_config = configparser.ConfigParser()
+param_config.read(sys.argv[1])
+
+class_num = int(param_config["Parameter"]["class_num"])
+sent_length = int(param_config["Parameter"]["sent_length"])
+filters = [int(f) for f in param_config["Parameter"]["filters"].split(",")]
+filter_num = int(param_config["Parameter"]["filter_num"])
+dropout_keep_prob_1 = float(param_config["Parameter"]["dropout_keep_prob_1"])
+dropout_keep_prob_2 = float(param_config["Parameter"]["dropout_keep_prob_2"])
+l2_lambda = float(param_config["Parameter"]["l2_lambda"])
+
 # prepare raw data and embedding dict
 
 # comments, ratings, movie_ids = get_data(paths["data"], int(sizes["data"]), True)
 # x_train_raw, x_dev_raw, y_train_raw, y_dev_raw = split_data(comments, ratings, 0.2)
-class_num = 5
 x_train_raw, y_train_raw, _ = get_data(paths["train"], 50000, class_num == 2)
 x_dev_raw, y_dev_raw, _ = get_data(paths["dev"], 10000, class_num == 2)
 x_test_raw, y_test_raw, _ = get_data(paths["test"], 10000, class_num == 2)
 comments = x_train_raw + x_dev_raw + x_test_raw
 embedding_dict = get_embedding_dict(comments)
-sent_length = max(len(c.split(' ')) for c in comments)
 embedding_size = int(sizes["embedding"])
 
 # get input data
 # x_train = embed(x_train_raw, embedding_dict, sent_length, embedding_size)
 # x_dev = embed(x_dev_raw, embedding_dict, sent_length, embedding_size)
-vocab_dict = get_char2idx_dict(comments)
+vocab_dict = get_char2idx_dict()
 x_train = char2idx(x_train_raw, vocab_dict, sent_length)
 x_dev = char2idx(x_dev_raw, vocab_dict, sent_length)
 
@@ -50,28 +61,26 @@ with graph.as_default():
     with sess.as_default():
         # model = Softmax(
         #     sent_length=sent_length,
-        #     class_num=2,
+        #     class_num=class_num,
         #     embedding_size=embedding_size,
         #     l2_lambda=0.0
         # )
         # model = CNN(
         #     sent_length=sent_length,
-        #     class_num=5,
+        #     class_num=class_num,
         #     embedding_size=embedding_size,
-        #     l2_lambda=0,
-        #     filter_num=128,
-        #     filter_sizes=[1, 2, 3]
+        #     l2_lambda=l2_lambda,
+        #     filter_num=filter_num,
+        #     filter_sizes=filters
         # )
         model = CNNDynamic(
             sent_length=sent_length,
             class_num=class_num,
             embedding_size=300,
             initial_embedding_dict=embedding_dict_array,
-            l2_lambda=0,
-            filter_num=128,
-            filter_sizes=[1, 2, 3],
-            dropout_keep_prop_1=1.0,
-            dropout_keep_prop_2=1.0
+            l2_lambda=l2_lambda,
+            filter_num=filter_num,
+            filter_sizes=filters
         )
 
         global_step = tf.Variable(0, name="global_step", trainable=False)
@@ -111,7 +120,7 @@ with graph.as_default():
         checkpoint_prefix = os.path.join(checkpoint_dir, "model")
         if not os.path.exists(checkpoint_dir):
             os.makedirs(checkpoint_dir)
-        saver = tf.train.Saver(tf.global_variables())
+        saver = tf.train.Saver(tf.global_variables(), max_to_keep=10)
 
         sess.run(tf.global_variables_initializer())
 
@@ -119,7 +128,9 @@ with graph.as_default():
         def train_step(x_batch, y_batch):
             feed_dict = {
                 model.input_x: x_batch,
-                model.input_y: y_batch
+                model.input_y: y_batch,
+                model.dropout_keep_prob_1: dropout_keep_prob_1,
+                model.dropout_keep_prob_2: dropout_keep_prob_2
             }
             _, step, summaries, loss, accuracy = sess.run(
                 [train_op, global_step, train_summary_op, model.loss, model.accuracy],
@@ -132,7 +143,9 @@ with graph.as_default():
         def dev_step(x_batch, y_batch, writer=None):
             feed_dict = {
                 model.input_x: x_batch,
-                model.input_y: y_batch
+                model.input_y: y_batch,
+                model.dropout_keep_prob_1: 1.0,
+                model.dropout_keep_prob_2: 1.0
             }
             step, summaries, loss, accuracy = sess.run(
                 [global_step, dev_summary_op, model.loss, model.accuracy],
@@ -144,8 +157,8 @@ with graph.as_default():
 
         # Generate batches
         batches = batch_iter(
-            list(zip(x_train, y_train)), 64, 30)
-        batch_num_per_epoch = int(len(x_train) / 64) + 1
+            list(zip(x_train, y_train)), 128, 5)
+        batch_num_per_epoch = int(len(x_train) / 128) + 1
         # Training loop. For each batch...
         for batch in batches:
             x_batch, y_batch = zip(*batch)

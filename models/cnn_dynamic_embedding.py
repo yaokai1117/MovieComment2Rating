@@ -5,11 +5,12 @@ import tensorflow as tf
 class CNNDynamic(object):
     def __init__(self, sent_length, class_num,
                  embedding_size, initial_embedding_dict,
-                 l2_lambda, filter_sizes, filter_num,
-                 dropout_keep_prop_1, dropout_keep_prop_2):
+                 l2_lambda, filter_sizes, filter_num):
 
         self.input_x = tf.placeholder(tf.int32, [None, sent_length], name="input_x")
         self.input_y = tf.placeholder(tf.float32, [None, class_num], name="input_y")
+        self.dropout_keep_prob_1 = tf.placeholder(tf.float32, name="dropout_keep_prob_1")
+        self.dropout_keep_prob_2 = tf.placeholder(tf.float32, name="dropout_keep_prob_2")
 
         l2_loss = tf.constant(0.0)
 
@@ -20,7 +21,7 @@ class CNNDynamic(object):
 
         # Add dropout
         with tf.name_scope("dropout_1"):
-            self.embedded_chars_dropped = tf.nn.dropout(self.embedded_chars_expanded, dropout_keep_prop_1,
+            self.embedded_chars_dropped = tf.nn.dropout(self.embedded_chars_expanded, self.dropout_keep_prob_1,
                                                         noise_shape=[tf.shape(self.embedded_chars_expanded)[0],
                                                                      sent_length, 1, 1])
 
@@ -56,7 +57,7 @@ class CNNDynamic(object):
 
         # Add dropout
         with tf.name_scope("dropout_2"):
-            self.h_drop = tf.nn.dropout(self.h_pool_flat, dropout_keep_prop_2)
+            self.h_drop = tf.nn.dropout(self.h_pool_flat, self.dropout_keep_prob_2)
 
         with tf.name_scope("linear"):
             weights = tf.get_variable(
