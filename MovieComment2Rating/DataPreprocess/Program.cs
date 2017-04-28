@@ -8,6 +8,7 @@ using System.Net;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
+using PandaLib.text;
 
 namespace DataPreprocess
 {
@@ -373,6 +374,8 @@ namespace DataPreprocess
                 var comment = JsonConvert.DeserializeObject<Comment>(line);
                 if (ret.Ids.Contains(comment.Cid))
                     continue;
+                if (!Regex.IsMatch(comment.Rate, @"\d+"))
+                    continue;
                 ret.Ids.Add(comment.Cid);
 
                 if (!ret.Movies.ContainsKey(comment.MovieId))
@@ -425,14 +428,16 @@ namespace DataPreprocess
                 {
                     if (ids.Contains(comment.Cid))
                         continue;
+                    if (!Regex.IsMatch(comment.Rate, @"\d+"))
+                        continue;
                     ids.Add(comment.Cid);
                     results.Add(line);
                     cnt++;
-                    if (cnt == 70000)
+                    if (cnt == 60000)
                         break;
                 }
             }
-            File.WriteAllLines(DataFolder + @"Comment70k.txt", results);
+            File.WriteAllLines(DataFolder + @"Comment60k.txt", results);
         }
 
         static void ShuffleAndDivide(string filename, int trainSize, int devSize, int testSize)
@@ -449,6 +454,22 @@ namespace DataPreprocess
             File.WriteAllLines(DataFolder + filename + ".test.txt", lines.Skip(trainSize + devSize).Take(testSize));
         }
 
+        static void DivideByCharacter(string filename)
+        {
+            var lines = File.ReadAllLines(DataFolder + filename);
+            var tokenizer = new EnglishTokenizer();
+            var results = new List<string>();
+            foreach (var line in lines)
+            {
+                var comment = JsonConvert.DeserializeObject<Comment>(line);
+                var text = comment.Text;
+                var tokens = tokenizer.Process(text);
+                comment.Text = string.Join(" ", tokens.Select(t => text.Substring(t.Start, t.Length)));
+                results.Add(JsonConvert.SerializeObject(comment));
+            }
+            File.WriteAllLines(DataFolder + filename + ".char.txt", results);
+        }
+
         // for DMSC data
         static void GetAllCommentDMSC(string filename)
         {
@@ -461,11 +482,14 @@ namespace DataPreprocess
         }
 
 
-
         static void Main(string[] args)
         {
-            GetBetterData("AllComments.segmented.txt");
-            ShuffleAndDivide("Comment70k.txt", 50000, 10000, 10000);
+            //GetBetterData("AllComments.segmented.txt");
+            //ShuffleAndDivide("Comment60k.txt", 40000, 10000, 10000);
+            //OutputMetric(DoStatisticsComments("AllComments.segmented.txt"));
+            DivideByCharacter("Comment60k.txt.train.txt");
+            DivideByCharacter("Comment60k.txt.test.txt");
+            DivideByCharacter("Comment60k.txt.dev.txt");
         }
 
 
