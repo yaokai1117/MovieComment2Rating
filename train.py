@@ -13,7 +13,7 @@ param_config = configparser.ConfigParser()
 param_config.read(sys.argv[1])
 
 class_num = int(param_config["Parameter"]["class_num"])
-sent_length = int(param_config["Parameter"]["sent_length"])
+sent_length = int(param_config["Parameter"]["sent_length_char"])
 filters = [int(f) for f in param_config["Parameter"]["filters"].split(",")]
 filter_num = int(param_config["Parameter"]["filter_num"])
 dropout_keep_prob_1 = float(param_config["Parameter"]["dropout_keep_prob_1"])
@@ -24,9 +24,9 @@ l2_lambda = float(param_config["Parameter"]["l2_lambda"])
 
 # comments, ratings, movie_ids = get_data(paths["data"], int(sizes["data"]), True)
 # x_train_raw, x_dev_raw, y_train_raw, y_dev_raw = split_data(comments, ratings, 0.2)
-x_train_raw, y_train_raw, _ = get_data(paths["train"], 50000, class_num == 2)
-x_dev_raw, y_dev_raw, _ = get_data(paths["dev"], 10000, class_num == 2)
-x_test_raw, y_test_raw, _ = get_data(paths["test"], 10000, class_num == 2)
+x_train_raw, y_train_raw, _ = get_data(paths["train_char"], sizes["train"], class_num == 2)
+x_dev_raw, y_dev_raw, _ = get_data(paths["dev_char"], sizes["dev"], class_num == 2)
+x_test_raw, y_test_raw, _ = get_data(paths["test_char"], sizes["test"], class_num == 2)
 comments = x_train_raw + x_dev_raw + x_test_raw
 embedding_dict = get_embedding_dict(comments)
 embedding_size = int(sizes["embedding"])
@@ -34,13 +34,16 @@ embedding_size = int(sizes["embedding"])
 # get input data
 # x_train = embed(x_train_raw, embedding_dict, sent_length, embedding_size)
 # x_dev = embed(x_dev_raw, embedding_dict, sent_length, embedding_size)
-vocab_dict = get_char2idx_dict()
+vocab_dict = get_char2idx_dict(paths["vocab_dict_char"])
 x_train = char2idx(x_train_raw, vocab_dict, sent_length)
 x_dev = char2idx(x_dev_raw, vocab_dict, sent_length)
 
 embedding_dict_array = np.zeros([len(vocab_dict), embedding_size])
-for i, word in enumerate(embedding_dict.keys()):
-    embedding_dict_array[vocab_dict[word]] = embedding_dict[word]
+if param_config["Parameter"]["random_embedding"] == '1':
+    embedding_dict_array = np.random.rand(len(vocab_dict), embedding_size) / 10
+else:
+    for i, word in enumerate(embedding_dict.keys()):
+        embedding_dict_array[vocab_dict[word]] = embedding_dict[word]
 
 y_train = (np.arange(class_num) == np.array(y_train_raw)[:, None]).astype(np.float32)
 y_dev = (np.arange(class_num) == np.array(y_dev_raw)[:, None]).astype(np.float32)
@@ -76,7 +79,7 @@ with graph.as_default():
         model = CNNDynamic(
             sent_length=sent_length,
             class_num=class_num,
-            embedding_size=300,
+            embedding_size=embedding_size,
             initial_embedding_dict=embedding_dict_array,
             l2_lambda=l2_lambda,
             filter_num=filter_num,
@@ -157,7 +160,7 @@ with graph.as_default():
 
         # Generate batches
         batches = batch_iter(
-            list(zip(x_train, y_train)), 128, 5)
+            list(zip(x_train, y_train)), 128, 10)
         batch_num_per_epoch = int(len(x_train) / 128) + 1
         # Training loop. For each batch...
         for batch in batches:

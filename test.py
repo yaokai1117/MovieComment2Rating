@@ -3,7 +3,7 @@ import sys
 from util import *
 
 class_num = 5
-x_test_raw, y_test_raw, _ = get_data(paths["test"], 10000, class_num == 2)
+x_test_raw, y_test_raw, _ = get_data(paths["test"], sizes["test"], class_num == 2)
 sent_length = 97
 embedding_size = int(sizes["embedding"])
 
