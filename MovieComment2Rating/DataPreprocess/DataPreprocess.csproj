@@ -7,8 +7,8 @@
     <ProjectGuid>{34F33904-2366-487E-B190-49FAD643F547}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DatePreprocess</RootNamespace>
-    <AssemblyName>DatePreprocess</AssemblyName>
+    <RootNamespace>DataPreprocess</RootNamespace>
+    <AssemblyName>DataPreprocess</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -40,6 +40,9 @@
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
+    </Reference>
+    <Reference Include="PandaLibCopy">
+      <HintPath>..\..\..\..\Workspaces\guanxi\users\v-yaka\TimeExtractor\TimeExtractor\bin\Debug\PandaLibCopy.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
