@@ -2,6 +2,7 @@
 
 import json
 import re
+import os
 import gensim
 import numpy as np
 import pickle
@@ -9,7 +10,10 @@ import configparser
 import platform
 
 config = configparser.ConfigParser()
-config.read("config.ini")
+if os.path.isfile("config.ini"):
+    config.read("config.ini")
+else:
+    config.read("../config.ini")
 paths = config["Win-Paths" if platform.system() == "Windows" else "Paths"]
 sizes = config["Sizes"]
 
@@ -27,7 +31,7 @@ def get_data(filename, size, to_binary=False):
             match = re.search("\d+", rating_str)
             if match is None:
                 continue
-            rating = int(match.group()) / 10 - 1
+            rating = int(int(match.group()) / 10 - 1)
             if to_binary:
                 if rating == 2:
                     continue
@@ -36,7 +40,7 @@ def get_data(filename, size, to_binary=False):
                 else:
                     ratings.append(1)
             else:
-                ratings.append(int(match.group()) / 10 - 1)
+                ratings.append(rating)
             movie_ids.append(comment["MovieId"])
             comments.append(comment["Text"])
             cnt += 1
@@ -174,11 +178,11 @@ def batch_iter(data, batch_size, num_epochs, shuffle=True):
 
 
 if __name__ == '__main__':
-    x_train_raw, y_train_raw, _ = get_data(paths["train_char"], 40000)
-    x_dev_raw, y_dev_raw, _ = get_data(paths["dev_char"], 10000)
-    x_test_raw, y_test_raw, _ = get_data(paths["test_char"], 10000)
-    comments = x_train_raw + x_dev_raw + x_test_raw
-    dump_char2idx_dict(comments, paths["vocab_dict_char"])
-    sent_length = max(len(t.split(' ')) for t in comments)
-    print(sent_length)
-    print("done.")
+    # x_train_raw, y_train_raw, _ = get_data(paths["train_char"], 40000)
+    # x_dev_raw, y_dev_raw, _ = get_data(paths["dev_char"], 10000)
+    # x_test_raw, y_test_raw, _ = get_data(paths["test_char"], 10000)
+    # comments = x_train_raw + x_dev_raw + x_test_raw
+    # dump_char2idx_dict(comments, paths["vocab_dict_char"])
+    # sent_length = max(len(t.split(' ')) for t in comments)
+    # print(sent_length)
+    print("not done.")

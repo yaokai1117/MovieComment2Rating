@@ -3,13 +3,13 @@ import sys
 from util import *
 
 class_num = 5
-x_test_raw, y_test_raw, _ = get_data(paths["test"], sizes["test"], class_num == 2)
-sent_length = 97
+x_test_raw, y_test_raw, _ = get_data(paths["test_char"], sizes["test"], class_num == 2)
+sent_length = int(sizes["sent_length_char"])
 embedding_size = int(sizes["embedding"])
 
 checkpoint_file = sys.argv[1]
 task_name = sys.argv[2]
-vocab_dict = get_char2idx_dict()
+vocab_dict = get_char2idx_dict(paths["vocab_dict_char"])
 x_test = char2idx(x_test_raw, vocab_dict, sent_length)
 y_test = y_test_raw
 
@@ -38,7 +38,7 @@ print(len(all_predictions))
 print("Total number of test examples: {}".format(len(y_test)))
 print("Accuracy: {:g}".format(correct_predictions/float(len(y_test))))
 
-with open("{}.txt".format(task_name), "w") as f:
-    f.write("checkpoint file: {}".format(checkpoint_file))
-    f.write("Total number of test examples: {}".format(len(y_test)))
-    f.write("Accuracy: {:g}".format(correct_predictions/float(len(y_test))))
+with open("results\{}.txt".format(task_name), "w") as f:
+    f.write("checkpoint file: {}\n".format(checkpoint_file))
+    f.write("Total number of test examples: {}\n".format(len(y_test)))
+    f.write("Accuracy: {:g}\n".format(correct_predictions/float(len(y_test))))
