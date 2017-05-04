@@ -7,6 +7,7 @@ from util import *
 from models.cnn import CNN
 from models.cnn_dynamic_embedding import CNNDynamic
 from models.cnn_2_channel import CNNTwoChannel
+from models.cnn_2_layer import CNNTwoLayer
 
 
 # read hyperparameter from config file
@@ -77,14 +78,25 @@ with graph.as_default():
         #     filter_num=filter_num,
         #     filter_sizes=filters
         # )
-        model = CNNTwoChannel(
+        # model = CNNTwoChannel(
+        #     sent_length=sent_length,
+        #     class_num=class_num,
+        #     embedding_size=embedding_size,
+        #     initial_embedding_dict=embedding_dict_array,
+        #     l2_lambda=l2_lambda,
+        #     filter_num=filter_num,
+        #     filter_sizes=filters
+        # )
+        model = CNNTwoLayer(
             sent_length=sent_length,
             class_num=class_num,
             embedding_size=embedding_size,
             initial_embedding_dict=embedding_dict_array,
             l2_lambda=l2_lambda,
-            filter_num=filter_num,
-            filter_sizes=filters
+            filter_num_1=filter_num,
+            filter_sizes_1=filters,
+            filter_num_2=64,
+            filter_sizes_2=[1, 2]
         )
 
         global_step = tf.Variable(0, name="global_step", trainable=False)
@@ -161,7 +173,7 @@ with graph.as_default():
 
         # Generate batches
         batches = batch_iter(
-            list(zip(x_train, y_train)), 128, 10)
+            list(zip(x_train, y_train)), 128, 40)
         batch_num_per_epoch = int(len(x_train) / 128) + 1
         # Training loop. For each batch...
         for batch in batches:

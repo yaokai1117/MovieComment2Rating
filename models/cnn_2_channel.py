@@ -18,14 +18,10 @@ class CNNTwoChannel(object):
         with tf.name_scope("embedding"):
             self.embedding_dict = tf.Variable(initial_embedding_dict, name="Embedding", dtype=tf.float32)
             self.embedded_chars = tf.nn.embedding_lookup(self.embedding_dict, self.input_x)
-            self.embedded_chars_expanded = tf.expand_dims(self.embedded_chars, -1)
-
-        # static embedding
-        with tf.name_scope("embedding_static"):
             self.embedding_dict_static = tf.Variable(initial_embedding_dict, name="Embedding_static", dtype=tf.float32,
                                                      trainable=False)
             self.embedded_chars_static = tf.nn.embedding_lookup(self.embedding_dict_static, self.input_x)
-            self.embedded_chars_expanded_static = tf.expand_dims(self.embedded_chars_static, -1)
+            self.embedded_chars_expanded = tf.stack([self.embedded_chars, self.embedded_chars_static], axis=3)
 
         # add dropout
         with tf.name_scope("dropout_1"):
@@ -38,7 +34,7 @@ class CNNTwoChannel(object):
         for i, filter_size in enumerate(filter_sizes):
             with tf.name_scope("conv-maxpool-%s" % filter_size):
                 # Convolution Layer
-                filter_shape = [filter_size, embedding_size, 1, filter_num]
+                filter_shape = [filter_size, embedding_size, 2, filter_num]
                 weights = tf.Variable(tf.truncated_normal(filter_shape, stddev=0.01), name="W")
                 bias = tf.Variable(tf.constant(0.01, shape=[filter_num]), name="b")
                 conv = tf.nn.conv2d(
@@ -58,32 +54,8 @@ class CNNTwoChannel(object):
                     name="pool")
                 pooled_outputs.append(pooled)
 
-        # convolution and maxpool layer for static channel
-        for i, filter_size in enumerate(filter_sizes):
-            with tf.name_scope("conv-maxpool-static-%s" % filter_size):
-                # Convolution Layer
-                filter_shape = [filter_size, embedding_size, 1, filter_num]
-                weights = tf.Variable(tf.truncated_normal(filter_shape, stddev=0.01), name="W")
-                bias = tf.Variable(tf.constant(0.01, shape=[filter_num]), name="b")
-                conv = tf.nn.conv2d(
-                    self.embedded_chars_expanded_static,
-                    weights,
-                    strides=[1, 1, 1, 1],
-                    padding="VALID",
-                    name="conv")
-                # Apply nonlinearity
-                h = tf.nn.relu(tf.nn.bias_add(conv, bias), name="relu")
-                # Maxpooling over the outputs
-                pooled = tf.nn.max_pool(
-                    h,
-                    ksize=[1, sent_length - filter_size + 1, 1, 1],
-                    strides=[1, 1, 1, 1],
-                    padding='VALID',
-                    name="pool")
-                pooled_outputs.append(pooled)
-
         # Combine all the pooled features
-        num_filters_total = filter_num * len(filter_sizes) * 2
+        num_filters_total = filter_num * len(filter_sizes)
         self.h_pool = tf.concat(pooled_outputs, 3)
         self.h_pool_flat = tf.reshape(self.h_pool, [-1, num_filters_total])
 
