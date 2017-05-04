@@ -6,6 +6,7 @@ import sys
 from util import *
 from models.cnn import CNN
 from models.cnn_dynamic_embedding import CNNDynamic
+from models.cnn_2_channel import CNNTwoChannel
 
 
 # read hyperparameter from config file
@@ -76,7 +77,7 @@ with graph.as_default():
         #     filter_num=filter_num,
         #     filter_sizes=filters
         # )
-        model = CNNDynamic(
+        model = CNNTwoChannel(
             sent_length=sent_length,
             class_num=class_num,
             embedding_size=embedding_size,

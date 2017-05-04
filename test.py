@@ -3,13 +3,13 @@ import sys
 from util import *
 
 class_num = 5
-x_test_raw, y_test_raw, _ = get_data(paths["test_char"], sizes["test"], class_num == 2)
-sent_length = int(sizes["sent_length_char"])
+x_test_raw, y_test_raw, _ = get_data(paths["test"], sizes["test"], class_num == 2)
+sent_length = int(sizes["sent_length"])
 embedding_size = int(sizes["embedding"])
 
 checkpoint_file = sys.argv[1]
 task_name = sys.argv[2]
-vocab_dict = get_char2idx_dict(paths["vocab_dict_char"])
+vocab_dict = get_char2idx_dict(paths["vocab_dict"])
 x_test = char2idx(x_test_raw, vocab_dict, sent_length)
 y_test = y_test_raw
 
