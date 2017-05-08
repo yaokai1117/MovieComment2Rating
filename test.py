@@ -1,15 +1,16 @@
 import tensorflow as tf
 import sys
+import json
 from util import *
 
 class_num = 5
-x_test_raw, y_test_raw, _ = get_data(paths["test_char"], sizes["test"], class_num == 2)
-sent_length = int(sizes["sent_length_char"])
+x_test_raw, y_test_raw, _ = get_data(paths["test"], sizes["test"], class_num == 2)
+sent_length = int(sizes["sent_length"])
 embedding_size = int(sizes["embedding"])
 
 checkpoint_file = sys.argv[1]
 task_name = sys.argv[2]
-vocab_dict = get_char2idx_dict(paths["vocab_dict_char"])
+vocab_dict = get_char2idx_dict(paths["vocab_dict"])
 x_test = char2idx(x_test_raw, vocab_dict, sent_length)
 y_test = y_test_raw
 
@@ -42,3 +43,15 @@ with open("results\{}.txt".format(task_name), "w") as f:
     f.write("checkpoint file: {}\n".format(checkpoint_file))
     f.write("Total number of test examples: {}\n".format(len(y_test)))
     f.write("Accuracy: {:g}\n".format(correct_predictions/float(len(y_test))))
+
+log_all_results = True
+if log_all_results:
+    with open("results\{}.all.txt".format(task_name), "w") as f:
+        f.writelines([json.dumps({"Text": text, "GT": str(ground_truth), "PD": str(prediction)}) + '\n'
+                     for text, ground_truth, prediction
+                     in zip(x_test_raw, y_test_raw, all_predictions)])
+    with open("results\{}.wrong.txt".format(task_name), "w") as f:
+        f.writelines([json.dumps({"Text": text, "GT": str(ground_truth), "PD": str(prediction)}) + '\n'
+                     for text, ground_truth, prediction
+                     in zip(x_test_raw, y_test_raw, all_predictions)
+                     if ground_truth != prediction])
