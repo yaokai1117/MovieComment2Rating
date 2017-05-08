@@ -16,7 +16,7 @@ class CNNTwoLayer(object):
 
         with tf.device("/cpu:0"), tf.name_scope("embedding"):
             self.embedding_dict = tf.Variable(initial_embedding_dict, name="Embedding", dtype=tf.float32,
-                                              trainable=False)
+                                              trainable=True)
             self.embedded_chars = tf.nn.embedding_lookup(self.embedding_dict, self.input_x)
             self.embedded_chars_expanded = tf.expand_dims(self.embedded_chars, -1)
 
