@@ -5,6 +5,7 @@ import datetime
 import sys
 from util import *
 from models.cnn_dynamic_embedding import CNNDynamic
+from models.cnn_real_number import CNNRealNumber
 
 
 # read hyperparameter from config file
@@ -61,7 +62,7 @@ graph = tf.Graph()
 with graph.as_default():
     sess = tf.Session()
     with sess.as_default():
-        model = CNNDynamic(
+        model = CNNRealNumber(
             sent_length=sent_length,
             class_num=class_num,
             embedding_size=embedding_size,
