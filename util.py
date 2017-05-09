@@ -178,11 +178,11 @@ def batch_iter(data, batch_size, num_epochs, shuffle=True):
 
 
 if __name__ == '__main__':
-    # x_train_raw, y_train_raw, _ = get_data(paths["train_char"], 40000)
-    # x_dev_raw, y_dev_raw, _ = get_data(paths["dev_char"], 10000)
-    # x_test_raw, y_test_raw, _ = get_data(paths["test_char"], 10000)
+    # x_train_raw, y_train_raw, _ = get_data(paths["train"], 40000)
+    # x_dev_raw, y_dev_raw, _ = get_data(paths["dev"], 10000)
+    # x_test_raw, y_test_raw, _ = get_data(paths["test"], 10000)
     # comments = x_train_raw + x_dev_raw + x_test_raw
-    # dump_char2idx_dict(comments, paths["vocab_dict_char"])
+    # dump_char2idx_dict(comments, paths["vocab_dict"])
     # sent_length = max(len(t.split(' ')) for t in comments)
     # print(sent_length)
-    print("not done.")
+    print("done.")

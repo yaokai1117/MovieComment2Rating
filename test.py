@@ -1,6 +1,5 @@
 import tensorflow as tf
 import sys
-import json
 from util import *
 
 class_num = 5

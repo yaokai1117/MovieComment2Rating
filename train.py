@@ -4,10 +4,7 @@ import os
 import datetime
 import sys
 from util import *
-from models.cnn import CNN
 from models.cnn_dynamic_embedding import CNNDynamic
-from models.cnn_2_channel import CNNTwoChannel
-from models.cnn_2_layer import CNNTwoLayer
 
 
 # read hyperparameter from config file
@@ -15,7 +12,7 @@ param_config = configparser.ConfigParser()
 param_config.read(sys.argv[1])
 
 class_num = int(param_config["Parameter"]["class_num"])
-sent_length = int(param_config["Parameter"]["sent_length_char"])
+sent_length = int(param_config["Parameter"]["sent_length"])
 filters = [int(f) for f in param_config["Parameter"]["filters"].split(",")]
 filter_num = int(param_config["Parameter"]["filter_num"])
 dropout_keep_prob_1 = float(param_config["Parameter"]["dropout_keep_prob_1"])
@@ -26,9 +23,9 @@ l2_lambda = float(param_config["Parameter"]["l2_lambda"])
 
 # comments, ratings, movie_ids = get_data(paths["data"], int(sizes["data"]), True)
 # x_train_raw, x_dev_raw, y_train_raw, y_dev_raw = split_data(comments, ratings, 0.2)
-x_train_raw, y_train_raw, _ = get_data(paths["train_char"], sizes["train"], class_num == 2)
-x_dev_raw, y_dev_raw, _ = get_data(paths["dev_char"], sizes["dev"], class_num == 2)
-x_test_raw, y_test_raw, _ = get_data(paths["test_char"], sizes["test"], class_num == 2)
+x_train_raw, y_train_raw, _ = get_data(paths["train"], sizes["train"], class_num == 2)
+x_dev_raw, y_dev_raw, _ = get_data(paths["dev"], sizes["dev"], class_num == 2)
+x_test_raw, y_test_raw, _ = get_data(paths["test"], sizes["test"], class_num == 2)
 comments = x_train_raw + x_dev_raw + x_test_raw
 embedding_dict = get_embedding_dict(comments)
 embedding_size = int(sizes["embedding"])
@@ -36,7 +33,7 @@ embedding_size = int(sizes["embedding"])
 # get input data
 # x_train = embed(x_train_raw, embedding_dict, sent_length, embedding_size)
 # x_dev = embed(x_dev_raw, embedding_dict, sent_length, embedding_size)
-vocab_dict = get_char2idx_dict(paths["vocab_dict_char"])
+vocab_dict = get_char2idx_dict(paths["vocab_dict"])
 x_train = char2idx(x_train_raw, vocab_dict, sent_length)
 x_dev = char2idx(x_dev_raw, vocab_dict, sent_length)
 
@@ -64,39 +61,14 @@ graph = tf.Graph()
 with graph.as_default():
     sess = tf.Session()
     with sess.as_default():
-        # model = Softmax(
-        #     sent_length=sent_length,
-        #     class_num=class_num,
-        #     embedding_size=embedding_size,
-        #     l2_lambda=0.0
-        # )
-        # model = CNN(
-        #     sent_length=sent_length,
-        #     class_num=class_num,
-        #     embedding_size=embedding_size,
-        #     l2_lambda=l2_lambda,
-        #     filter_num=filter_num,
-        #     filter_sizes=filters
-        # )
-        # model = CNNTwoChannel(
-        #     sent_length=sent_length,
-        #     class_num=class_num,
-        #     embedding_size=embedding_size,
-        #     initial_embedding_dict=embedding_dict_array,
-        #     l2_lambda=l2_lambda,
-        #     filter_num=filter_num,
-        #     filter_sizes=filters
-        # )
-        model = CNNTwoLayer(
+        model = CNNDynamic(
             sent_length=sent_length,
             class_num=class_num,
             embedding_size=embedding_size,
             initial_embedding_dict=embedding_dict_array,
             l2_lambda=l2_lambda,
-            filter_num_1=filter_num,
-            filter_sizes_1=filters,
-            filter_num_2=64,
-            filter_sizes_2=[1, 2]
+            filter_num=filter_num,
+            filter_sizes=filters
         )
 
         global_step = tf.Variable(0, name="global_step", trainable=False)
