@@ -6,6 +6,7 @@ import sys
 from util import *
 from models.cnn_dynamic_embedding import CNNDynamic
 from models.cnn_real_number import CNNRealNumber
+from models.lstm import LSTM
 
 
 # read hyperparameter from config file
@@ -62,14 +63,22 @@ graph = tf.Graph()
 with graph.as_default():
     sess = tf.Session()
     with sess.as_default():
-        model = CNNRealNumber(
+        # model = CNNRealNumber(
+        #     sent_length=sent_length,
+        #     class_num=class_num,
+        #     embedding_size=embedding_size,
+        #     initial_embedding_dict=embedding_dict_array,
+        #     l2_lambda=l2_lambda,
+        #     filter_num=filter_num,
+        #     filter_sizes=filters
+        # )
+        model = LSTM(
             sent_length=sent_length,
             class_num=class_num,
             embedding_size=embedding_size,
             initial_embedding_dict=embedding_dict_array,
             l2_lambda=l2_lambda,
-            filter_num=filter_num,
-            filter_sizes=filters
+            hidden_size=128
         )
 
         global_step = tf.Variable(0, name="global_step", trainable=False)
