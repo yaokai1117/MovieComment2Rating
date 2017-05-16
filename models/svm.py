@@ -8,7 +8,7 @@ class SVMClassifier(object):
         self.tfidf = TfidfVectorizor(x_train_raw)
         x_train = [self.tfidf.process(sent) for sent in x_train_raw]
         y_train = y_train_raw
-        self.svm = svm.SVC()
+        self.svm = svm.SVC(decision_function_shape="ovr")
         self.svm.fit(x_train, y_train)
 
     def predict(self, sentence):

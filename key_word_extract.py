@@ -61,13 +61,13 @@ with graph.as_default():
                         two_word_weight[word_1 + "#" + word_2] += 1
 
         sorted_word_weight = sorted(word_weight.items(), key=operator.itemgetter(1), reverse=True)
-        for i in range(10):
+        for i in range(50):
             print(sorted_word_weight[i][0] +
                   str(sorted_word_weight[i][1]))
 
         print("#################################")
 
         sorted_two_word_weight = sorted(two_word_weight.items(), key=operator.itemgetter(1), reverse=True)
-        for i in range(10):
+        for i in range(50):
             print(sorted_two_word_weight[i][0] + "\t" +
                   str(sorted_two_word_weight[i][1]))

@@ -7,14 +7,15 @@ from util import *
 from models.cnn_dynamic_embedding import CNNDynamic
 from models.cnn_real_number import CNNRealNumber
 from models.lstm import LSTM
-
+from models.cnn_2_channel import CNNTwoChannel
+from models.cnn_2_layer import CNNTwoLayer
 
 # read hyperparameter from config file
 param_config = configparser.ConfigParser()
 param_config.read(sys.argv[1])
 
 class_num = int(param_config["Parameter"]["class_num"])
-sent_length = int(param_config["Parameter"]["sent_length"])
+sent_length = int(param_config["Parameter"]["sent_length_char"])
 filters = [int(f) for f in param_config["Parameter"]["filters"].split(",")]
 filter_num = int(param_config["Parameter"]["filter_num"])
 dropout_keep_prob_1 = float(param_config["Parameter"]["dropout_keep_prob_1"])
@@ -63,7 +64,7 @@ graph = tf.Graph()
 with graph.as_default():
     sess = tf.Session()
     with sess.as_default():
-        # model = CNNRealNumber(
+        # model = CNNTwoChannel(
         #     sent_length=sent_length,
         #     class_num=class_num,
         #     embedding_size=embedding_size,
@@ -71,6 +72,25 @@ with graph.as_default():
         #     l2_lambda=l2_lambda,
         #     filter_num=filter_num,
         #     filter_sizes=filters
+        # )
+        # model = LSTM(
+        #     sent_length=sent_length,
+        #     class_num=class_num,
+        #     embedding_size=embedding_size,
+        #     initial_embedding_dict=embedding_dict_array,
+        #     l2_lambda=l2_lambda,
+        #     hidden_size=128
+        # )
+        # model = CNNTwoLayer(
+        #     sent_length=sent_length,
+        #     class_num=class_num,
+        #     embedding_size=embedding_size,
+        #     initial_embedding_dict=embedding_dict_array,
+        #     l2_lambda=l2_lambda,
+        #     filter_num_1=filter_num,
+        #     filter_sizes_1=filters,
+        #     filter_num_2=64,
+        #     filter_sizes_2=[1, 2]
         # )
         model = LSTM(
             sent_length=sent_length,

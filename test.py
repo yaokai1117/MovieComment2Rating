@@ -2,7 +2,7 @@ import tensorflow as tf
 import sys
 from util import *
 
-class_num = 2
+class_num = 5
 x_test_raw, y_test_raw, _ = get_data(paths["test"], sizes["test"], class_num == 2)
 sent_length = int(sizes["sent_length"])
 embedding_size = int(sizes["embedding"])

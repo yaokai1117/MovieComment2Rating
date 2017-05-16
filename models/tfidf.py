@@ -12,8 +12,9 @@ class TfidfVectorizor(object):
                     self.vocab[word] = 1
                 else:
                     self.vocab[word] += 1
-        self.vocab = {key: value for key, value in self.vocab.items() if value > 10}
+        self.vocab = {key: value for key, value in self.vocab.items() if value > 50}
         self.vocab_size = len(self.vocab)
+        print("Vocab_size: " + str(self.vocab_size))
 
         # word to index
         max_idx = 0
