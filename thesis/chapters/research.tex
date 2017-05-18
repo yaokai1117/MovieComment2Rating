@@ -1,0 +1,89 @@
+\chapter{文本情感分析}
+文本情感分析（Sentiment Analysis），也被称为意见挖掘（Opinion Mining），是指对对文本中的主观信息进行辨认、提取和量化。文本情感分析被广泛地应用在用户评论、调查的反馈、网络和社交媒体内容上。一般情况下，文本情感分析的目标是判断文本的作者的（对于某一个主题的）情感倾向。进行情感分析的方法有很多，常见的方法有基于词库的方法，基于机器学习的方法如朴素贝叶斯和支撑向量机等等。
+
+\section{基于词库的方法}
+基于词库的文本情感分析方法（Lexicon based method）使用已知的情感字典，这样的情感字典包含情感词以及对应的情感极性。在已有先验的情感词与对应的极性时，可以计算这些情感词在测试句子中出现的次数。一个测试句情感倾向为正向的概率可以计算为 $P(+|D)=\frac{a}{a+b}$， 其中 a和b分别是正向词语和负向词语在该测试句子中出现的次数。
+
+基于词库的方法的优点在于不需要已经标注的数据，因此适用的场景比较广。它的缺点在于，必须存在合适的情感字典，且方法的准确率很依赖于情感字典的质量。对于纯粹以情感词的数目来判断句子情感倾向的方法，没有办法处理句子的复杂语义结构，如“不是很好”这样的情况。
+
+\section{基于机器学习的方法}
+\subsection{朴素贝叶斯分类器}
+朴素贝叶斯分类器（Naïve Bayes Classifier）是一种条件概率模型，给定一个测试句子，通过计算这个句子属于每一个类别的条件概率来对句子进行分类。贝叶斯分类器中句子的表示是“一袋子词”（Bag of word）， 即将句子看作一个无序的词的集合。只考虑每个词的出现次数，不考虑词的相对位置。贝叶斯分类器假设给定一个类别的条件下，每个单词的出现概率都是相互独立的，即$P(w_i|C)$相互独立。在这个假设下，句子属于某一个类别的条件概率就可以通过计算它的每个单词属于该类别的联合概率分布得到，如下：
+\begin{equation} \label{eq2.1}
+P(C_j|D)=\frac{P(w_1,...,w_n|C_j)*P(C_j)}{P(w_1,...,w_n)}\\
+        =\frac{P(C_j)*\prod_{i=1}^{n}P(w_i|C_j)}{\prod_{i=1}^{n}P(w_i)}
+\end{equation}
+朴素贝叶斯分类器用于情感分析的算法如下：
+
+\begin{algorithm}
+
+\emph{Training Process}\;
+\For{$j\leftarrow 1$ \KwTo $class\_num$}{
+    \For{$i\leftarrow 1$ \KwTo $vocab\_size$}{
+        $count(w_{i}, C_{j})\leftarrow$number of word $w_{i}$ in sentences of class $C_{j}$\;
+    }
+    $count(C_{j})\leftarrow$number of sentences of class $C_{j}$\;
+    $word\_count(C_{j})\leftarrow$number of word in sentences of class $C_{j}$\;
+    $P(C_{j})\leftarrow\frac{count(C_{j})}{\sum_{j=1}^{class\_num}count(C_{j})}$\;
+}
+\BlankLine
+\emph{Predicting Function}\;
+\textbf{Input:} a segmented sentence\;
+\textbf{Output:} predicted class\;
+\For{$j\leftarrow 1$ \KwTo $class\_num$}{
+    $score(j)\leftarrow$ $\lg{P(C_{j})}$\;
+    \For{$i\leftarrow 1$ \KwTo $sent\_length$}{\label{forins}
+        $score(j)\leftarrow$ $score(j)+\lg{\frac{count(w_{i}, C_{j})+1}{word\_count(C_{j})+vocab\_size}}$\;
+    }
+}
+Return $augmax_{j}(score(j))$
+\caption{朴素贝叶斯分类器}\label{Naive Bayes}
+\label{alog:algorithm2}
+\end{algorithm}\DecMargin{1em}
+
+朴素贝叶斯分类器用于情感分析的优点在于只需要比较少的训练数据就可以训练出合理的$P(w_i|C)$。缺点在于它依赖的独立性假设是一个很强的假设，很多时候并不符合数据的实际状况。此外，朴素贝叶斯分类器只考虑每个词语出现的次数，而放弃了每个词语的位置的信息。
+\subsection{支撑向量机}
+支撑向量机（Support Vector Machine，简称SVM）是一种常用的有监督学习的算法。由于它的每个测试样例的输入必须是一个向量，因此，在使用支撑向量机进行情感分类之前，必须对文本进行特征抽取，将句子转化为向量。Ti.idf是一种常见的特征抽取方法。
+\subsubsection{Tf.idf 向量化}
+Tf.idf全称为Term frequency-inverse document frequency。与朴素贝叶斯相同，tf.idf也是将文本看作“一袋子词”，只考虑每个词语出现的次数。使用tf.idf进行向量化首先需要对训练数据建立词典，对每个词出现的次数进行统计，选取出现次数多于一个阈值的$m$个词，根据这$m$个词在某一个句子和全部句子的出现次数，来将句子转化为一个$m$维的向量。
+Tf指词频，其值通过单词在句子中出现的次数除以句子的长度获得，因为一个词语在句子中出现的次数越多，很有可能代表它占了很大比重；Idf可以通过含有该词语的文档占总文档的比率取倒数再取对数得到，因为一个词语如果出现的次数非常多，如汉语中的“的”，则它实际上含有的信息很少，不能作为句子的特征。而出现次数较少的词则含有更多的信息，如果一个词只在很少的几个句子中出现，这几个句子很有可能具有很高的相似度。Tf.idf向量化的结果的每一位由对应单词的tf和idf相乘得到。
+\subsubsection{使用支撑向量机进行情感分析}
+支撑向量机的目的是找到一个超平面（hyperplane，从而将训练数据最优地分割为两类。为了使这个超平面是最优的，对于每一个类别，支撑向量机算法寻求让最多的该类别的数据点处于超平面的一侧，且最大化超平面的宽度（margin，超平面每一边距离它最近的点到该超平面的距离）。
+
+对于一个二分类的问题，如果训练数据是线性可分的，那么可以找到两个相互平行的超平面将这两类数据完全分隔开，且这两个超平面之间的距离最大化。这样，两个超平面之间的距离就是margin，而要求的最优的超平面就位于这两个平行的超平面的正中间。将输入数据表示为$(\textbf{x}_i, y_i)$, $i=1,..., n$, $y \in \{-1,+1\}$。在进行正规化之后，两个平行的超平面可以表示为$\textbf{w}*\textbf{x}+b=-1$ 和$\textbf{w}*\textbf{x}+b=+1$。 要使两个超平面之间的距离最大，就需要最小化$||\textbf{w}||$，故问题转化为：
+\begin{equation} \label{eq2.2}
+“Minimize\ ||\textbf{w}||\ subject\ to\ y_i(\textbf{w}*\textbf{x}_i-b)\ge 1,\ for\ i=1,...,n”
+\end{equation}
+
+在处理实际问题时，训练数据常常是不线性可分的。通过引入Soft Margin，允许一部分点在两个超平面之间，可以使支撑向量机能够处理这样的问题。Soft Margin的支撑向量机要求在最大化margin宽度的同时，最小化处于两个超平面之间的点到对应超平面的距离（即最小化这些点的误差）。问题转化为最小化函数:
+\begin{equation} \label{eq2.3}
+J(\textbf{w},b)=[\frac{1}{n}\sum_{i=1}^{n}max(0,1-y_i(\textbf{w}*\textbf{x}_i-b))]+\lambda ||\textbf{w}||^2
+\end{equation}
+
+由此得到线性二分类支撑向量机的算法：
+\begin{algorithm}
+
+\emph{Training Process}\;
+Use tf.idf to transform all text data to vectors.\;
+Random initialize $w$ and $b$\;
+$\eta_t\leftarrow$ learning rate at time $t$\;
+\For{$i\leftarrow 1$ \KwTo $epoch\_num$}{
+    $\textbf{w}_{t+1}\leftarrow$$\textbf{w}_t-\eta_t\bigtriangledown_{\textbf{w}_t}J(\textbf{w},b)$\;
+    $b_{t+1}\leftarrow$$b_t-\eta_t\bigtriangledown_{b_t}J(\textbf{w},b)$\;
+}
+
+\BlankLine
+\emph{Predicting Function}\;
+\textbf{Input:} a segmented sentence\;
+\textbf{Output:} predicted class\;
+Use tf.idf to transform input sentence to a vector $x_{i}$\;
+Return $sgn(w * x_i + b)$
+\caption{支撑向量机}\label{SVM}
+\label{alog:algorithm1}
+\end{algorithm}\DecMargin{1em}
+
+
+支撑向量机通过一个核函数（kernel function）将输入数据映射到一个高维的特征空间，通过使用非线性的核函数，如RBF函数，可以得到非线性的分类器。上述的支撑向量机算法只适用于二分类的问题，对于多分类问题，可以使用one-against-one的方法，对每两个类别组合都建立一个二分类的支撑向量机分类器，一共建立$\frac{class\_num * (class\_num - 1)}{2}$个SVM分类器；或者使用one-against-all，对每个类别，建立一个该类别与其他所有类别之间的分类器。
+
+\section{小结}
+本章对文本情感分析的定义进行了说明，并且对目前常见的几种文本情感分析的方法进行了介绍。首先对于传统方法中常用的基于情感字典的方法，本章进行了简介和优缺点分析；对于目前非常流行，本课题也会采用做baseline实验的机器学习方法朴素贝叶斯分类器和支撑向量机，本章较详细地介绍了其原理和算法。

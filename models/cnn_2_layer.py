@@ -50,8 +50,8 @@ class CNNTwoLayer(object):
                 with tf.name_scope("conv-maxpool-%s" % filter_size):
                     # Convolution Layer
                     filter_shape = [filter_size, 1, filter_num_1, filter_num_2]
-                    weights = tf.Variable(tf.truncated_normal(filter_shape, stddev=0.01), name="W")
-                    bias = tf.Variable(tf.constant(0.01, shape=[filter_num_2]), name="b")
+                    weights = tf.Variable(tf.truncated_normal(filter_shape, stddev=0.01), name="W2")
+                    bias = tf.Variable(tf.constant(0.01, shape=[filter_num_2]), name="b2")
                     conv = tf.nn.conv2d(
                         conv_output_1[j],
                         weights,
@@ -80,7 +80,7 @@ class CNNTwoLayer(object):
 
         with tf.name_scope("linear"):
             weights = tf.get_variable(
-                "W",
+                "W_linear",
                 shape=[num_filters_total, class_num],
                 initializer=tf.contrib.layers.xavier_initializer())
             bias = tf.Variable(tf.constant(0.1, shape=[class_num]), name="b")
