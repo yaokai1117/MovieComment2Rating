@@ -64,22 +64,22 @@ graph = tf.Graph()
 with graph.as_default():
     sess = tf.Session()
     with sess.as_default():
-        model = CNNTwoChannel(
-            sent_length=sent_length,
-            class_num=class_num,
-            embedding_size=embedding_size,
-            initial_embedding_dict=embedding_dict_array,
-            l2_lambda=l2_lambda,
-            filter_num=filter_num,
-            filter_sizes=filters
-        )
+        # model = CNNTwoChannel(
+        #     sent_length=sent_length,
+        #     class_num=class_num,
+        #     embedding_size=embedding_size,
+        #     initial_embedding_dict=embedding_dict_array,
+        #     l2_lambda=l2_lambda,
+        #     filter_num=filter_num,
+        #     filter_sizes=filters
+        # )
         # model = LSTM(
         #     sent_length=sent_length,
         #     class_num=class_num,
         #     embedding_size=embedding_size,
         #     initial_embedding_dict=embedding_dict_array,
         #     l2_lambda=l2_lambda,
-        #     hidden_size=128
+        #     hidden_size=64
         # )
         model = CNNTwoLayer(
             sent_length=sent_length,

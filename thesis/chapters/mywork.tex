@@ -1,29 +1,32 @@
 \chapter{基于卷积神经网络的影评分类实验}
 \section{数据集与预处理}
 \subsection{数据的获取与概况}
-本课题采用的数据集是来自豆瓣的中文影评数据。使用微软必应（Bing）搜索的Cosmos分布式处理平台获取。来自Cosmos的数据是原始的HTML文本，使用HtmlAgility库对其进行解析，提取出有用的影评、评分等信息，整理成JSON格式的文件。数据的基本信息如下：
+本课题采用的数据集是来自豆瓣的中文影评数据。使用微软必应（Bing）搜索的Cosmos分布式处理平台获取。来自Cosmos的数据是原始的HTML 文本，使用HtmlAgility库对其进行解析，提取出有用的影评、评分等信息，整理成JSON格式的文件。数据的基本信息如\ref{tab:comment count}所示。
 
-\begin{table}[htbp]
+\begin{table}
 \centering
 \caption{短评数据数量表格} \label{tab:comment count}
-\begin{tabular}{|全部短评数量|全部长评数量|短评来源用户数量|短评对应电影数量}
+\begin{tabular}{c|c|c|c}
+    \hline
+    全部短评数量 & 全部长评数量 & 短评来源用户数量 & 短评对应电影数量\\
     \hline
     124591 & 100000 & 42517 & 4887\\
     \hline
 \end{tabular}
-\note{统计了收集的数据中长评、短评、以及短评对应的电影和用户的数量}
 \end{table}
 
-整理生成的数据格式如下：
-\begin{table}[htbp]
+整理生成的短评数据示例如\ref{tab:comment format}所示。
+\begin{table}
 \centering
-\caption{Json短评数据格式表格} \label{tab:comment format}
-\begin{tabular}{|Text|全部用户数量|全部电影数量}
+\caption{短评数据示例} \label{tab:comment format}
+\begin{tabular}{c|c|c|c|c|c|c}
     \hline
-    124591 & 42517 & 4887\\
+    Text & Username & Rate & Cid & Vote & MovieName & MovieId\\
+    \hline
+    这么高分我有点不懂 & X.Lee & 3 & 1005243594 & 12 & 拿起枪的简 & 10760385\\
     \hline
 \end{tabular}
-\note{统计了收集的短评数据中影评、电影和用户的数量}
+\note{整理后的短评JSON数据示例。长评数据格式与之类似，但多了Title域}
 \end{table}
 
 短评数据每条的长度不超过140个字符，每条都带有对应评分（1到5星）；长评数据没有字数限制，同样每条都包括1到5星的评分。
@@ -38,9 +41,22 @@
 \subsection{实验设置}
 本课题的实验分为两种，第一种是由中文电影短评预测该短评对应的评分（1到5星），本课题以短文本五分类的方法来实现对影评的预测；第二种是将五分类的中的3星评论去除，以1星和二星评论作为负面评论，四星和五星评论作为正面评论，由短评的内容预测其评论的倾向（正面还是负面），将问题转化为个短文本二分类来做。
 
-在使用短评数据进行实验之前，我对短评根据其作者发布的影评数量进行了筛选，只保留了发表影评数量超过5的较活跃用户的影评。符合要求的影评共67255篇。抽取其中60000篇，进行了shuffle后按下表划分了训练集，验证集和测试集（由于第二类实验需要去除三星的评论，故第二类实验的数据规模与第一类有所区别）：
+在使用短评数据进行实验之前，我对短评根据其作者发布的影评数量进行了筛选，只保留了发表影评数量超过5的较活跃用户的影评。符合要求的影评共67255篇。抽取其中60000篇，进行了shuffle后按\ref{tab:data divide}划分了训练集，验证集和测试集（由于第二类实验需要去除三星的评论，故第二类实验的数据规模与第一类有所区别）：
 
-	【表格】
+\begin{table}
+\centering
+\caption{实验数据划分表格} \label{tab:data divide}
+\begin{tabular}{c|c|c|c}
+    \hline
+     &训练集 & 验证集 & 测试集\\
+    \hline
+    评分预测实验 & 40000 & 10000 & 10000\\
+    \hline
+    二分类实验 & 28204 & 7059 & 7016\\
+    \hline
+\end{tabular}
+\end{table}
+
 
 
 \section{不同的卷积神经网络结构}
