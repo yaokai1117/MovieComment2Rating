@@ -17,7 +17,7 @@ P(C_j|D)=\frac{P(w_1,...,w_n|C_j)*P(C_j)}{P(w_1,...,w_n)}\\
 
 \begin{algorithm}
 
-\emph{Training Process}\;
+\emph{//\ Training Process}\;
 \For{$j\leftarrow 1$ \KwTo $class\_num$}{
     \For{$i\leftarrow 1$ \KwTo $vocab\_size$}{
         $count(w_{i}, C_{j})\leftarrow$number of word $w_{i}$ in sentences of class $C_{j}$\;
@@ -27,7 +27,7 @@ P(C_j|D)=\frac{P(w_1,...,w_n|C_j)*P(C_j)}{P(w_1,...,w_n)}\\
     $P(C_{j})\leftarrow\frac{count(C_{j})}{\sum_{j=1}^{class\_num}count(C_{j})}$\;
 }
 \BlankLine
-\emph{Predicting Function}\;
+\emph{//\ Predicting Function}\;
 \textbf{Input:} a segmented sentence\;
 \textbf{Output:} predicted class\;
 \For{$j\leftarrow 1$ \KwTo $class\_num$}{
@@ -63,7 +63,7 @@ J(\textbf{w},b)=[\frac{1}{n}\sum_{i=1}^{n}max(0,1-y_i(\textbf{w}*\textbf{x}_i-b)
 由此得到线性二分类支撑向量机的算法：
 \begin{algorithm}
 
-\emph{Training Process}\;
+\emph{//\ Training Process}\;
 Use tf.idf to transform all text data to vectors.\;
 Random initialize $w$ and $b$\;
 $\eta_t\leftarrow$ learning rate at time $t$\;
@@ -73,7 +73,7 @@ $\eta_t\leftarrow$ learning rate at time $t$\;
 }
 
 \BlankLine
-\emph{Predicting Function}\;
+\emph{//\ Predicting Function}\;
 \textbf{Input:} a segmented sentence\;
 \textbf{Output:} predicted class\;
 Use tf.idf to transform input sentence to a vector $x_{i}$\;
