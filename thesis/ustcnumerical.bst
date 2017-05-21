@@ -998,9 +998,7 @@ FUNCTION {article}
       format.date "year" output.check
       format.pages punct.colon output.after
     }
-    { "J" format.mark "" output.after
-      new.block
-      format.journal "journal" output.check
+    { format.journal "journal" output.check
       new.block
       format.year.vol.num output
       format.pages punct.colon output.after

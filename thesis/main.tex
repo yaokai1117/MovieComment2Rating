@@ -4,6 +4,9 @@
 \documentclass[bachelor]{ustcthesis}
 % bachelor|master|doctor
 \usepackage{ustcextra}
+\usepackage{pdfpages}
+\usepackage{float}
+\restylefloat{table}
 \graphicspath{{figures/}}
 %\bibliographystyle{ustcauthoryear}
 \bibliographystyle{ustcnumerical}
@@ -25,8 +28,9 @@
 
 \begin{document}
 
-\maketitle
-
+%\maketitle
+\includepdf[pages=-]{cover.pdf}
+\includepdf[pages=-]{feiye.pdf}
 %
 % 本科论文:
 %   frontmatter: 致谢、目录、中文摘要、英文摘要
@@ -55,7 +59,7 @@
 \input{chapters/research}
 \input{chapters/cnn}
 \input{chapters/mywork}
-\input{chapters/experiment}
+%\input{chapters/experiment}
 \input{chapters/conclusion}
 %\input{chapters/figure}
 %\input{chapters/table}

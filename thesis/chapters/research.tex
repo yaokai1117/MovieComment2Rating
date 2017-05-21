@@ -15,8 +15,8 @@ P(C_j|D)=\frac{P(w_1,...,w_n|C_j)*P(C_j)}{P(w_1,...,w_n)}\\
 \end{equation}
 朴素贝叶斯分类器用于情感分析的算法如下：
 
+\SetAlCapSkip{1em}
 \begin{algorithm}
-
 \emph{//\ Training Process}\;
 \For{$j\leftarrow 1$ \KwTo $class\_num$}{
     \For{$i\leftarrow 1$ \KwTo $vocab\_size$}{
@@ -61,6 +61,8 @@ J(\textbf{w},b)=[\frac{1}{n}\sum_{i=1}^{n}max(0,1-y_i(\textbf{w}*\textbf{x}_i-b)
 \end{equation}
 
 由此得到线性二分类支撑向量机的算法：
+\IncMargin{1em}
+\SetAlCapSkip{1em}
 \begin{algorithm}
 
 \emph{//\ Training Process}\;
@@ -83,7 +85,7 @@ Return $sgn(w * x_i + b)$
 \end{algorithm}\DecMargin{1em}
 
 
-支撑向量机通过一个核函数（kernel function）将输入数据映射到一个高维的特征空间，通过使用非线性的核函数，如RBF函数，可以得到非线性的分类器。上述的支撑向量机算法只适用于二分类的问题，对于多分类问题，可以使用one-against-one的方法，对每两个类别组合都建立一个二分类的支撑向量机分类器，一共建立$\frac{class\_num * (class\_num - 1)}{2}$个SVM分类器；或者使用one-against-all，对每个类别，建立一个该类别与其他所有类别之间的分类器。
+支撑向量机通过一个核函数（kernel function）将输入数据映射到一个高维的特征空间，通过使用非线性的核函数，如RBF函数，可以得到非线性的分类器。上述的支撑向量机算法只适用于二分类的问题，对于多分类问题，可以使用one-against-one的方法，对每两个类别组合都建立一个二分类的支撑向量机分类器，一共建立$\frac{class\_num * (class\_num - 1)}{2}$个支撑向量机分类器；或者使用one-against-all，对每个类别，建立一个该类别与其他所有类别之间的分类器。
 
 \section{小结}
-本章对文本情感分析的定义进行了说明，并且对目前常见的几种文本情感分析的方法进行了介绍。首先对于传统方法中常用的基于情感字典的方法，本章进行了简介和优缺点分析；对于目前非常流行，本课题也会采用做baseline实验的机器学习方法朴素贝叶斯分类器和支撑向量机，本章较详细地介绍了其原理和算法。
+本章对文本情感分析的定义进行了说明，并且对目前常见的几种文本情感分析的方法进行了介绍。首先对于传统方法中常用的基于情感字典的方法，本章进行了简介和优缺点分析；对于目前非常流行，本论文也会采用做baseline实验的机器学习方法朴素贝叶斯分类器和支撑向量机，本章较详细地介绍了其原理和算法。

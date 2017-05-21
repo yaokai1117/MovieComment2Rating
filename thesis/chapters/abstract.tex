@@ -3,7 +3,7 @@
 
 目前对文本进行情感分析的方法有很多，传统的方法有基于词库的方法，使用已知的情感词典；也有基于机器学习的方法，如朴素贝叶斯和支撑向量机。近年来，深度学习的方法也被用在文本情感分析的问题上。卷积神经网络（Convolutional Neural Network，简称为CNN）是一种发源于计算机视觉领域的深度学习算法，因其模型非常适合图像数据的特征而在计算机视觉领域取得了巨大成功。通过使用“词嵌入”（word embedding）的方法，卷积神经网络也被应用于文本领域，在文本分类等问题上取得了成功。
 
-本文以来自豆瓣的中文短评为语料，使用卷积神经网络对其进行情感分析，判断其情感倾向，并由此预测每一条短评对应的评分（星数）。本文采用Word2vec的算法，从分词后的12万句短评和10万篇长评的语料训练出一个中文词语的word embedding。基于训练出的word embedding 将每个词语转化为词向量，在此基础上使用Tensoflow搭建神经网络的模型，进行情感分析。本文重点实现了卷积神经网络的多种结构，同时实现了复发神经网络（Recurrent Neural Network，简称RNN），以及传统算法如朴素贝叶斯和支撑向量机在这一问题上的应用。分析和比较了不同算法的实验结果以及性能。
+本文以来自豆瓣的中文短评为语料，使用卷积神经网络对其进行情感分析，判断其情感倾向，并由此预测每一条短评对应的评分（星数）。本文采用Word2vec的算法，从分词后的12万句短评和10万篇长评的语料训练出一个中文词语的词嵌入。基于训练出的词嵌入 将每个词语转化为词向量，在此基础上使用Tensoflow搭建神经网络的模型，进行情感分析。本文重点实现了卷积神经网络的多种结构，同时实现了复发神经网络（Recurrent Neural Network，简称RNN），以及传统算法如朴素贝叶斯和支撑向量机在这一问题上的应用。分析和比较了不同算法的实验结果以及性能。
 
 \keywords{情感分析，深度学习，卷积神经网络}
 
@@ -14,7 +14,7 @@ Many kinds of forums and comment sites appear on the internet in recent years, t
 
 Currently, there is several methods to do sentiment analysis. For example, traditional lexicon based methods, using a sentiment dictionary; machine learning based methods, such as Naive Bayes classifier and Support Vector Machine (SVM). In recent years, deep learning methods are also used in the task of text sentiment analysis. Convolutional Neural Network (CNN) is deep learning algorithm which was originally used in computer vision field, it has gained significant success in computer vision since it is suitable for the data structure of picture. By using the technique of word embedding, we can also use CNN in the field of text. It has already succeeded in sentence classification.
 
-This paper uses a corpus made up of Chinese movie short comments from Douban. We apply CNN models over this corpus to do text sentiment analysis, and predict the rates of each comments correspondingly. We use Word2vec algorithm to train our corpus of over 160 thousand short movie comments and 100 thousand movie review, and get a word embedding dictionary of Chinese words. We build CNN models over the embedded data using Tensorflow to do sentiment analysis and get the rate predictions. We focus on the implementation of different structure of CNN, we also implement a Recurrent Neural Network (RNN) model, and traditional methods such as Naive Bayes and SVM for comparison purposes. This paper compares different performance of each algorithms, and analyses the results.
+This paper uses a corpus made up of Chinese movie short comments from Douban. We apply CNN models over this corpus to do text sentiment analysis, and predict the rates of each comments correspondingly. We use Word2vec algorithm to train our corpus of over 160 thousand short movie comments and 100 thousand movie review, and get a word embedding dictionary of Chinese words. We build CNN models over the embedded data using Tensorflow to do sentiment analysis and get the rate predictions. We focus on the implementation of different structure of CNN, we also implement a Recurrent Neural Network (RNN) model, and traditional methods such as Naive Bayes and SVM for comparison purposes   . This paper compares different performance of each algorithms, and analyses the results.
 
 \enkeywords{Sentiment Analysis, Deep Learning, Convolutional Neural Network}
 \end{enabstract}
